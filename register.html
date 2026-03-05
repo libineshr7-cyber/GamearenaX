@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Register - Free Fire</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="min-h-screen bg-[#050505] text-white py-12 px-6 grain">
+    <div class="max-w-4xl mx-auto">
+        <a href="index.html"
+            class="font-chakra flex items-center gap-2 text-[#A1A1AA] hover:text-[#FFD700] transition-colors mb-8">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i> Back to Home
+        </a>
+        <div class="text-center mb-12">
+            <h1 class="font-rajdhani font-bold text-5xl uppercase tracking-wide mb-4">
+                <span class="text-[#FFD700]">TOURNAMENT</span> REGISTRATION
+            </h1>
+        </div>
+        <div class="bg-zinc-900/50 backdrop-blur-md border border-white/10 rounded-xl p-8">
+            <form id="register-form" class="space-y-8">
+                <div>
+                    <h3 class="font-rajdhani font-bold text-2xl uppercase mb-6 text-[#FFD700]">PLAYER INFORMATION</h3>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="font-chakra text-sm text-[#A1A1AA] mb-2 block">PLAYER NAME</label>
+                            <input type="text" name="player_name" required
+                                class="w-full bg-transparent border-b-2 border-white/20 rounded-none px-0 py-3 focus:border-[#FFD700] focus:outline-none transition-colors font-chakra text-white"
+                                placeholder="Enter your name" />
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div><label class="font-chakra text-sm text-[#A1A1AA] mb-2 block">EMAIL
+                                    ADDRESS</label><input type="email" name="email" required
+                                    class="w-full bg-transparent border-b-2 border-white/20 rounded-none px-0 py-3 focus:border-[#FFD700] focus:outline-none transition-colors font-chakra text-white"
+                                    placeholder="Email" /></div>
+                            <div><label class="font-chakra text-sm text-[#A1A1AA] mb-2 block">PHONE NUMBER</label><input
+                                    type="tel" name="phone" required
+                                    class="w-full bg-transparent border-b-2 border-white/20 rounded-none px-0 py-3 focus:border-[#FFD700] focus:outline-none transition-colors font-chakra text-white"
+                                    placeholder="Phone" /></div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div><label class="font-chakra text-sm text-[#A1A1AA] mb-2 block">FREE FIRE
+                                    UID</label><input type="text" name="freefire_uid" required
+                                    class="w-full bg-transparent border-b-2 border-white/20 rounded-none px-0 py-3 focus:border-[#FFD700] focus:outline-none transition-colors font-chakra text-white"
+                                    placeholder="UID" /></div>
+                            <div><label class="font-chakra text-sm text-[#A1A1AA] mb-2 block">TEAM NAME</label><input
+                                    type="text" name="team_name" required
+                                    class="w-full bg-transparent border-b-2 border-white/20 rounded-none px-0 py-3 focus:border-[#FFD700] focus:outline-none transition-colors font-chakra text-white"
+                                    placeholder="Team" /></div>
+                        </div>
+                        <div class="grid grid-cols-1 gap-6 mt-6">
+                            <div>
+                                <label class="font-chakra text-sm text-[#A1A1AA] mb-2 block">SELECT SLOT (1-50)</label>
+                                <select id="slot_number" name="slot_number" required
+                                    class="w-full bg-black border-b-2 border-white/20 rounded-none px-0 py-3 focus:border-[#FFD700] focus:outline-none transition-colors font-chakra text-white">
+                                    <option value="" disabled selected>Loading available slots...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-rajdhani font-bold text-2xl uppercase mb-6 text-[#FFD700]">PAYMENT DETAILS</h3>
+                    <div class="bg-black/40 border border-[#FFD700]/30 rounded-lg p-6 mb-6">
+                        <p class="font-chakra text-sm text-[#A1A1AA] mb-4">Please complete the payment using the UPI ID
+                            below:</p>
+                        <div class="bg-zinc-900 rounded-lg p-4 mb-4">
+                            <p class="font-rajdhani text-2xl font-bold text-[#FFD700]">9514159632@ybl</p>
+                        </div>
+                        <div class="bg-zinc-900 rounded-lg p-4">
+                            <p class="font-chakra text-xs text-[#A1A1AA] mb-1">AMOUNT</p>
+                            <p class="font-rajdhani text-2xl font-bold text-[#00FFFF]">₹20</p>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="font-chakra text-sm text-[#A1A1AA] mb-2 block">UPLOAD PAYMENT SCREENSHOT</label>
+                        <div id="upload-container">
+                            <label id="upload-label"
+                                class="block w-full border-2 border-dashed border-white/20 rounded-lg p-8 text-center cursor-pointer hover:border-[#FFD700]/50 transition-colors">
+                                <i data-lucide="upload" class="w-12 h-12 text-[#A1A1AA] mx-auto mb-4"></i>
+                                <span id="upload-text" class="text-[#A1A1AA] font-chakra block mb-2">Click to upload
+                                    screenshot</span>
+                                <input type="file" accept="image/*" id="file-input" class="hidden" />
+                            </label>
+                            <p id="upload-status" class="mt-4 font-chakra font-bold text-green-500 hidden text-center">
+                                <i data-lucide="check-circle" class="inline w-5 h-5 mr-1 align-text-bottom"></i> Upload
+                                Successfully
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" id="submit-btn"
+                    class="w-full font-rajdhani font-bold px-8 py-5 bg-[#FFD700] text-black hover:bg-[#E6C200] tactical-clip">COMPLETE
+                    REGISTRATION</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        lucide.createIcons();
+        let b64 = null;
+
+        async function loadSlots() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const tId = urlParams.get('tournament_id');
+                const fetchUrl = tId ? `http://localhost:8000/api/slots?tournament_id=${tId}` : `http://localhost:8000/api/slots`;
+                const res = await fetch(fetchUrl);
+                const slots = await res.json();
+                const select = document.getElementById('slot_number');
+                select.innerHTML = '<option value="" disabled selected>Select a slot</option>';
+                slots.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.slot_number;
+                    if (s.status !== 'available') {
+                        opt.disabled = true;
+                        opt.innerText = `Slot ${s.slot_number} (Occupied)`;
+                        opt.classList.add('text-red-500');
+                    } else {
+                        opt.innerText = `Slot ${s.slot_number} (Available)`;
+                    }
+                    select.appendChild(opt);
+                });
+            } catch (e) {
+                document.getElementById('slot_number').innerHTML = '<option value="" disabled selected>Error loading slots</option>';
+            }
+        }
+        loadSlots();
+
+        document.getElementById('file-input').addEventListener('change', (e) => {
+            const f = e.target.files[0];
+            if (f) {
+                const r = new FileReader();
+                r.onload = () => {
+                    b64 = r.result;
+                    document.getElementById('upload-status').classList.remove('hidden');
+                    document.getElementById('upload-text').innerText = f.name;
+                    document.getElementById('upload-label').classList.add('border-[#FFD700]');
+                };
+                r.readAsDataURL(f);
+            }
+        });
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!b64) return alert("Upload screenshot!");
+            if (!document.getElementById('slot_number').value) return alert("Please select a slot");
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const tId = urlParams.get('tournament_id') || undefined;
+
+            const btn = document.getElementById('submit-btn'); btn.innerText = "Submitting...";
+            try {
+                const res = await fetch('http://localhost:8000/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tournament_id: tId,
+                        player_name: e.target.player_name.value, email: e.target.email.value,
+                        phone: e.target.phone.value, freefire_uid: e.target.freefire_uid.value,
+                        team_name: e.target.team_name.value, payment_screenshot: b64,
+                        slot_number: parseInt(document.getElementById('slot_number').value)
+                    })
+                });
+                if (res.ok) window.location.href = 'success.html';
+                else {
+                    const data = await res.json();
+                    alert(data.detail || 'Error! Check terminal.');
+                }
+            } catch { alert('Network Error'); }
+            btn.innerText = "COMPLETE REGISTRATION";
+        });
+    </script>
+</body>
+
+</html>

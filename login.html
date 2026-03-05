@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="min-h-screen bg-[#050505] text-white flex items-center justify-center grain">
+    <div class="max-w-md w-full p-8 bg-zinc-900/50 rounded-xl border border-white/10 relative z-10">
+        <div class="text-center mb-8">
+            <i data-lucide="shield" class="w-16 h-16 text-[#FFD700] mx-auto neon-glow"></i>
+            <h1 class="font-rajdhani font-bold text-3xl uppercase mt-4">ADMIN <span class="text-[#FFD700]">LOGIN</span>
+            </h1>
+        </div>
+        <form id="login-form" class="space-y-6">
+            <input type="password" id="password" placeholder="Password (admin123)" required
+                class="w-full font-chakra bg-transparent border-b-2 border-white/20 py-3 focus:outline-none focus:border-[#FFD700]" />
+            <button type="submit"
+                class="w-full font-rajdhani font-bold px-8 py-4 bg-[#FFD700] text-black hover:shadow-[0_0_20px_rgba(255,215,0,0.5)] tactical-clip">LOGIN</button>
+        </form>
+    </div>
+    <script>
+        lucide.createIcons();
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const p = document.getElementById('password').value;
+            const res = await fetch('http://localhost:8000/api/admin/login', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: p })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                localStorage.setItem('admin_token', data.token);
+                window.location.href = 'dashboard.html';
+            } else alert('Invalid Password');
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="min-h-screen bg-[#050505] text-white p-6 font-chakra">
+    <div class="max-w-7xl mx-auto border-white/10">
+        <div class="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
+            <h1 class="font-rajdhani font-bold text-4xl text-[#FFD700] uppercase tracking-wider">Tournament Dashboard
+            </h1>
+            <button onclick="localStorage.clear(); window.location='index.html'"
+                class="text-red-500 font-bold hover:text-red-400">Logout</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="bg-zinc-900/50 border border-white/10 rounded-xl p-6">
+                <h2
+                    class="font-rajdhani font-bold text-2xl text-[#FFD700] mb-4 uppercase flex justify-between items-center">
+                    Manage Tournaments
+                    <button onclick="createTournamentBtn()"
+                        class="text-sm px-4 py-1 bg-white/10 hover:bg-white/20 text-white rounded">CREATE NEW</button>
+                </h2>
+
+                <div class="space-y-4">
+                    <label class="font-chakra text-sm text-[#A1A1AA] block">SELECT TOURNAMENT</label>
+                    <select id="tournament-select" onchange="switchTournament()"
+                        class="w-full bg-black border border-white/20 px-4 py-3 text-white font-chakra focus:outline-none focus:border-[#FFD700]">
+                    </select>
+                </div>
+
+                <div class="mt-6 pt-6 border-t border-white/10 hidden" id="tournament-controls">
+                    <button onclick="activateTournament()"
+                        class="px-6 py-2 bg-green-500/20 text-green-400 hover:bg-green-500/40 font-bold rounded mb-2">Set
+                        as
+                        Active Public Tournament</button>
+                    <button onclick="deleteTournament()"
+                        class="px-6 py-2 bg-red-500/20 text-red-500 hover:bg-red-500/40 font-bold rounded ml-2 mb-2">Delete
+                        Tournament</button>
+                    <span id="active-badge" class="ml-4 text-[#FFD700] text-sm font-bold hidden"><i
+                            data-lucide="check-circle" class="w-4 h-4 inline mr-1"></i>CURRENTLY ACTIVE</span>
+                </div>
+            </div>
+
+            <div class="bg-zinc-900/50 border border-[#00FFFF]/30 rounded-xl p-6 hidden" id="create-modal">
+                <h2 class="font-rajdhani font-bold text-2xl text-[#00FFFF] mb-4 uppercase">Create Tournament</h2>
+                <div class="space-y-4">
+                    <div><label class="font-chakra text-sm text-[#A1A1AA] block">NAME</label>
+                        <input type="text" id="new-name" placeholder="E.g. Summer Showdown"
+                            class="w-full bg-black border border-white/20 px-4 py-2 text-white font-chakra" />
+                    </div>
+                    <div><label class="font-chakra text-sm text-[#A1A1AA] block">MAX SLOTS</label>
+                        <input type="number" id="new-slots" value="50"
+                            class="w-full bg-black border border-white/20 px-4 py-2 text-white font-chakra" />
+                    </div>
+                    <div><label class="font-chakra text-sm text-[#A1A1AA] block">DATE & TIME</label>
+                        <input type="datetime-local" id="new-date"
+                            class="w-full bg-black border border-white/20 px-4 py-2 text-white font-chakra" />
+                    </div>
+                    <button onclick="submitCreate()"
+                        class="w-full font-rajdhani font-bold px-8 py-3 bg-[#00FFFF] text-black hover:bg-[#00CCCC] tactical-clip mt-2">CREATE
+                        TOURNAMENT</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="stats" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"></div>
+
+        <div class="bg-zinc-900/50 border border-white/10 rounded-xl p-4 overflow-x-auto tracing-beam mb-8">
+            <h3 class="font-rajdhani font-bold text-xl uppercase mb-4 text-[#A1A1AA] pl-2">Registrations</h3>
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="text-[#FFD700] font-rajdhani text-lg uppercase border-b border-white/10">
+                        <th class="p-4">SLOT</th>
+                        <th class="p-4">PLAYER</th>
+                        <th class="p-4">UID & PAYMENT</th>
+                        <th class="p-4">STATUS</th>
+                        <th class="p-4">KILLS / BOOYAH</th>
+                        <th class="p-4">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="bg-zinc-900/50 border border-purple-500/30 rounded-xl p-4 overflow-x-auto tracing-beam">
+            <h3 class="font-rajdhani font-bold text-xl uppercase mb-4 text-purple-400 pl-2 flex justify-between items-center">
+                User Queries & Complaints
+                <span id="unread-count" class="bg-purple-500 text-white text-xs px-2 py-1 rounded-full hidden">0 Unread</span>
+            </h3>
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="text-purple-400 font-rajdhani text-lg uppercase border-b border-purple-500/30">
+                        <th class="p-4 rounded-tl-lg">DATE</th>
+                        <th class="p-4">USER</th>
+                        <th class="p-4">SUBJECT</th>
+                        <th class="p-4">MESSAGE</th>
+                        <th class="p-4 rounded-tr-lg">STATUS</th>
+                    </tr>
+                </thead>
+                <tbody id="contacts-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        const API = 'http://localhost:8000/api';
+        const t = localStorage.getItem('admin_token');
+        if (!t) window.location.href = 'login.html';
+
+        let tournaments = [];
+        let currentTid = null;
+
+        async function init() {
+            const h = { Authorization: 'Bearer ' + t };
+            try {
+                const res = await fetch(`${API}/tournaments`, { headers: h });
+                if (res.status == 401) return window.location.href = 'login.html';
+
+                tournaments = await res.json();
+                const select = document.getElementById('tournament-select');
+
+                if (tournaments.length === 0) {
+                    select.innerHTML = '<option disabled selected>No tournaments created.</option>';
+                    return;
+                }
+
+                select.innerHTML = tournaments.map(tour => `<option value="${tour.id}">${tour.name} ${tour.is_active ? '(ACTIVE)' : ''}</option>`).join('');
+
+                if (!currentTid || !tournaments.find(x => x.id === currentTid)) {
+                    const active = tournaments.find(tour => tour.is_active);
+                    currentTid = active ? active.id : tournaments[0].id;
+                }
+                select.value = currentTid;
+
+                await Promise.all([
+                    loadStatsForTournament(currentTid, h),
+                    loadContacts(h)
+                ]);
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadContacts(h) {
+            try {
+                const res = await fetch(`${API}/contacts`, { headers: h });
+                const contacts = await res.json();
+                
+                const unread = contacts.filter(c => !c.is_read).length;
+                if(unread > 0) {
+                    const badge = document.getElementById('unread-count');
+                    badge.innerText = `${unread} New`;
+                    badge.classList.remove('hidden');
+                } else {
+                    document.getElementById('unread-count').classList.add('hidden');
+                }
+
+                document.getElementById('contacts-body').innerHTML = contacts.map(c => `
+                    <tr class="border-b border-white/10 hover:bg-white/5 transition ${!c.is_read ? 'bg-purple-500/10' : ''}">
+                        <td class="p-4 font-chakra text-sm text-[#A1A1AA] max-w-[120px]">${new Date(c.created_at).toLocaleString()}</td>
+                        <td class="p-4">
+                            <span class="font-bold block">${c.name}</span>
+                            <a href="mailto:${c.email}" class="text-xs text-purple-400 hover:underline">${c.email}</a>
+                        </td>
+                        <td class="p-4 font-bold text-sm ${c.subject === 'Complaint' ? 'text-red-400' : 'text-[#FFD700]'}">${c.subject}</td>
+                        <td class="p-4 text-sm font-chakra max-w-[300px] break-words">${c.message}</td>
+                        <td class="p-4">
+                            ${!c.is_read ? `<button onclick="markRead('${c.id}')" class="text-xs px-3 py-1 bg-purple-500/20 text-purple-400 hover:bg-purple-500/40 border border-purple-500/50 rounded">Mark Read</button>` : `<span class="text-xs text-green-500 flex items-center"><i data-lucide="check" class="w-3 h-3 mr-1"></i>Read</span>`}
+                        </td>
+                    </tr>
+                `).join('');
+                lucide.createIcons();
+            } catch(e) { console.error(e); }
+        }
+
+        window.markRead = async (id) => {
+            const h = { Authorization: 'Bearer ' + t };
+            await fetch(`${API}/contacts/${id}/read`, { method: 'PUT', headers: h });
+            loadContacts(h);
+        }
+
+        async function loadStatsForTournament(tid, h) {
+            const tObj = tournaments.find(x => x.id === tid);
+            document.getElementById('tournament-controls').classList.remove('hidden');
+            document.getElementById('active-badge').style.display = tObj.is_active ? 'inline' : 'none';
+
+            const [sRes, rRes] = await Promise.all([
+                fetch(`${API}/stats?tournament_id=${tid}`, { headers: h }),
+                fetch(`${API}/registrations?tournament_id=${tid}`, { headers: h })
+            ]);
+
+            const stats = await sRes.json(), regs = await rRes.json();
+
+            document.getElementById('stats').innerHTML = `
+                <div class="p-6 bg-zinc-800 border border-white/10 rounded-xl">
+                    <p class="font-rajdhani text-[#A1A1AA] text-sm tracking-widest">REGISTRATIONS (MAX ${stats.max_registrations})</p>
+                    <p class="text-4xl font-bold mt-2 font-chakra">${stats.total_registrations}</p>
+                </div>
+                <div class="p-6 bg-zinc-800 border border-white/10 rounded-xl">
+                    <p class="font-rajdhani text-[#A1A1AA] text-sm tracking-widest">APPROVED</p>
+                    <p class="text-4xl text-green-500 font-bold mt-2 font-chakra">${stats.approved_count}</p>
+                </div>
+                <div class="p-6 bg-zinc-800 border border-white/10 rounded-xl">
+                    <p class="font-rajdhani text-[#A1A1AA] text-sm tracking-widest">PENDING</p>
+                    <p class="text-4xl text-orange-500 font-bold mt-2 font-chakra">${stats.pending_count}</p>
+                </div>
+                <div class="p-6 bg-zinc-800 border border-[#00FFFF]/30 rounded-xl">
+                    <p class="font-rajdhani text-[#A1A1AA] text-sm tracking-widest">PRIZE POOL</p>
+                    <p class="text-4xl text-[#00FFFF] font-bold mt-2 font-chakra">₹${stats.total_prize_pool}</p>
+                </div>
+            `;
+
+            document.getElementById('table-body').innerHTML = regs.map(r => `
+                <tr class="border-b border-white/10 hover:bg-white/5 transition">
+                    <td class="p-4 font-bold text-[#FFD700] text-3xl font-rajdhani">#${r.slot_number || '-'}</td>
+                    <td class="p-4">
+                        <span class="font-bold text-lg">${r.player_name}</span><br>
+                        <span class="text-xs text-[#FFD700] uppercase">${r.team_name}</span>
+                    </td>
+                    <td class="p-4">
+                        ${r.freefire_uid}
+                        ${r.payment_screenshot ? `<br><a href="${r.payment_screenshot}" download="Payment_${r.player_name}.png" class="text-xs text-[#00FFFF] hover:underline mt-1 inline-block"><i data-lucide="download" class="w-3 h-3 inline mr-1"></i>Receipt</a>` : ''}
+                    </td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 rounded text-xs uppercase ${r.status === 'approved' ? 'bg-green-500/20 text-green-400' : r.status === 'rejected' ? 'bg-red-500/20 text-red-400' : 'bg-orange-500/20 text-orange-400'}">${r.status}</span>
+                    </td>
+                    <td class="p-4">
+                        <input type="number" value="${r.kills}" onblur="update('${r.id}','kills',this.value)" class="bg-black border border-white/20 w-16 px-2 py-1 text-center font-chakra mr-2" />
+                        <button onclick="update('${r.id}','booyah',${!r.is_booyah_winner})" class="px-3 py-1 font-bold ${r.is_booyah_winner ? 'bg-[#FFD700] text-black' : 'bg-zinc-800 text-white border border-white/30'}">B</button>
+                    </td>
+                    <td class="p-4">
+                        ${r.status == 'pending' ? `<button onclick="update('${r.id}','status','approved')" class="text-xs px-3 py-1 bg-green-500/20 text-green-400 hover:bg-green-500/40 rounded mr-2">APPROVE</button><button onclick="update('${r.id}','status','rejected')" class="text-xs px-3 py-1 bg-red-500/20 text-red-400 hover:bg-red-500/40 rounded">REJECT</button>` : `<button onclick="update('${r.id}','status','pending')" class="text-xs px-3 py-1 bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/40 rounded">RESET</button>`}
+                    </td>
+                </tr>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        window.switchTournament = () => {
+            currentTid = document.getElementById('tournament-select').value;
+            loadStatsForTournament(currentTid, { Authorization: 'Bearer ' + t });
+        }
+
+        window.update = async (id, type, val) => {
+            const body = type == 'kills' ? { kills: parseInt(val) } : type == 'status' ? { status: val } : { is_booyah_winner: val };
+            await fetch(`${API}/registrations/${id}/${type}`, {
+                method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + t },
+                body: JSON.stringify(body)
+            });
+            loadStatsForTournament(currentTid, { Authorization: 'Bearer ' + t });
+        };
+
+        window.activateTournament = async () => {
+            await fetch(`${API}/tournaments/${currentTid}/activate`, { method: 'PUT', headers: { Authorization: 'Bearer ' + t } });
+            init();
+            alert("Tournament Activated! The public pages reflect this now.");
+        }
+
+        window.deleteTournament = async () => {
+            if (!confirm("Are you sure you want to delete this tournament and all its registrations?")) return;
+            await fetch(`${API}/tournaments/${currentTid}`, { method: 'DELETE', headers: { Authorization: 'Bearer ' + t } });
+            alert("Tournament deleted.");
+            currentTid = null;
+            init();
+        }
+
+        window.createTournamentBtn = () => {
+            document.getElementById('create-modal').classList.remove('hidden');
+        }
+
+        window.submitCreate = async () => {
+            const name = document.getElementById('new-name').value;
+            const slots = parseInt(document.getElementById('new-slots').value);
+            const date = document.getElementById('new-date').value;
+            if (!name || !slots || !date) return alert("Fill all fields");
+            await fetch(`${API}/tournaments`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + t },
+                body: JSON.stringify({ name, max_slots: slots, date: date })
+            });
+            alert("Created successfully!");
+            document.getElementById('create-modal').classList.add('hidden');
+            init();
+        }
+
+        init();
+        setTimeout(() => lucide.createIcons(), 500);
+    </script>
+</body>
+
+</html>

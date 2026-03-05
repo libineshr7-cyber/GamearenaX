@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        tailwind.config = { theme: { extend: {} }, corePlugins: { preflight: true } }
+    </script>
+</head>
+
+<body class="min-h-screen bg-[#050505] text-white py-12 px-4 grain">
+    <div class="max-w-4xl mx-auto relative z-10">
+        <a href="index.html"
+            class="font-chakra flex items-center gap-2 text-[#A1A1AA] hover:text-[#FFD700] transition-colors mb-8">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i> Back to Home
+        </a>
+
+        <div
+            class="bg-zinc-900/50 backdrop-blur-md border border-white/10 rounded-xl p-8 lg:p-12 relative overflow-hidden">
+            <!-- Decorative Elements -->
+            <div class="absolute top-0 right-0 w-64 h-64 bg-[#FFD700]/10 rounded-full blur-3xl pointer-events-none">
+            </div>
+            <div
+                class="absolute -bottom-10 -left-10 w-48 h-48 bg-[#00FFFF]/10 rounded-full blur-3xl pointer-events-none">
+            </div>
+
+            <div id="tournaments-tabs" class="flex flex-wrap gap-6 mb-8 border-b border-white/10 pb-4">
+            </div>
+
+            <div id="tournaments-content" class="min-h-[300px]">
+                <div class="text-center mt-12">
+                    <h1
+                        class="font-rajdhani font-bold text-4xl sm:text-5xl lg:text-6xl uppercase tracking-wide mb-4 text-[#FFD700]">
+                        LOADING TOURNAMENTS
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        let timers = {};
+        function startTimer(targetDateStr, elementId) {
+            if (timers[elementId]) clearInterval(timers[elementId]);
+            const target = new Date(targetDateStr).getTime();
+            if (isNaN(target)) { document.getElementById(elementId).innerText = "TBD"; return; }
+
+            timers[elementId] = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = target - now;
+                const el = document.getElementById(elementId);
+                if (!el) return clearInterval(timers[elementId]);
+
+                if (distance < 0) {
+                    el.innerText = "STARTED/ENDED";
+                    el.classList.replace('text-[#00FFFF]', 'text-[#FFD700]');
+                    clearInterval(timers[elementId]);
+                    return;
+                }
+
+                const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((distance % (1000 * 60)) / 1000);
+
+                el.innerHTML = `${d}d ${h}h ${m}m ${s}s`;
+            }, 1000);
+        }
+
+        window.switchTournamentTab = (id) => {
+            document.querySelectorAll('.tournament-tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tournament-tab-btn').forEach(el => {
+                el.classList.remove('text-[#FFD700]', 'border-[#FFD700]');
+                el.classList.add('text-[#A1A1AA]', 'border-transparent');
+            });
+
+            const contentEl = document.getElementById(`content-${id}`);
+            const btnEl = document.getElementById(`btn-${id}`);
+
+            if (contentEl) contentEl.classList.remove('hidden');
+            if (btnEl) {
+                btnEl.classList.remove('text-[#A1A1AA]', 'border-transparent');
+                btnEl.classList.add('text-[#FFD700]', 'border-[#FFD700]');
+            }
+        };
+
+        async function fetchTournaments() {
+            try {
+                const res = await fetch('http://localhost:8000/api/public/tournaments');
+                if (res.ok) {
+                    const tournaments = await res.json();
+                    const tabsContainer = document.getElementById('tournaments-tabs');
+                    const contentContainer = document.getElementById('tournaments-content');
+
+                    if (tournaments.length === 0) {
+                        contentContainer.innerHTML = '<div class="text-center font-rajdhani text-2xl text-[#A1A1AA] pt-12">No tournaments available.</div>';
+                        return;
+                    }
+
+                    tabsContainer.innerHTML = tournaments.map(t => `
+                        <button id="btn-${t.id}" onclick="switchTournamentTab('${t.id}')"
+                            class="tournament-tab-btn pb-2 font-rajdhani font-bold text-xl sm:text-2xl uppercase text-[#A1A1AA] hover:text-white border-b-2 border-transparent transition-colors flex items-center">
+                            ${t.name}
+                            ${t.is_active ? '<span class="ml-2 bg-green-500/20 text-green-400 text-xs px-2 py-0.5 rounded">ACTIVE</span>' : ''}
+                        </button>
+                    `).join('');
+
+                    contentContainer.innerHTML = tournaments.map((t) => {
+                        const dateStr = new Date(t.date);
+                        const displayDate = !isNaN(dateStr.getTime()) ? dateStr.toLocaleString() : "TBD";
+
+                        return `
+                            <div id="content-${t.id}" class="tournament-tab-content hidden">
+                                <div class="text-center mb-8">
+                                    <i data-lucide="swords" class="w-12 h-12 text-[#FFD700] mx-auto mb-4 neon-glow"></i>
+                                    <h1 class="font-rajdhani font-bold text-3xl sm:text-4xl uppercase tracking-wide mb-2 text-[#FFD700]">
+                                        ${t.name}
+                                    </h1>
+                                    <p class="font-chakra text-[#A1A1AA]">
+                                        Max Slots: ${t.max_slots}
+                                    </p>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                    <div class="bg-black/40 border border-[#FFD700]/30 rounded-xl p-6 relative overflow-hidden tracing-beam">
+                                        <h3 class="font-rajdhani font-bold text-lg uppercase mb-2 text-[#A1A1AA]">START TIMER</h3>
+                                        <div id="timer-${t.id}" class="font-rajdhani text-3xl text-[#00FFFF] font-bold tracking-wider">
+                                            LOADING...
+                                        </div>
+                                    </div>
+                                    <div class="bg-black/40 border border-[#FFD700]/30 rounded-xl p-6 tracing-beam">
+                                        <h3 class="font-rajdhani font-bold text-lg uppercase mb-2 text-[#A1A1AA]">DATE & TIME</h3>
+                                        <p class="font-chakra text-xl text-white">
+                                            ${displayDate}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="text-center flex justify-center gap-4 flex-wrap">
+                                    <a href="register.html?tournament_id=${t.id}"
+                                        class="font-rajdhani font-bold uppercase tracking-widest px-8 py-3 bg-[#FFD700] text-black hover:bg-[#E6C200] hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all duration-300 tactical-clip inline-block">REGISTER
+                                        NOW</a>
+                                    <a href="slots.html?tournament_id=${t.id}"
+                                        class="font-rajdhani font-bold uppercase tracking-widest px-8 py-3 border border-[#00FFFF] text-[#00FFFF] hover:bg-[#00FFFF]/10 transition-all duration-300 inline-block">VIEW SLOTS</a>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    lucide.createIcons();
+
+                    tournaments.forEach(t => {
+                        startTimer(t.date, `timer-${t.id}`);
+                    });
+
+                    // Activate first tab (prioritize active tournament)
+                    const activeTour = tournaments.find(t => t.is_active) || tournaments[0];
+                    window.switchTournamentTab(activeTour.id);
+                }
+            } catch (err) {
+                console.error("Could not fetch tournaments", err);
+                document.getElementById('tournaments-container').innerHTML = '<div class="text-center text-red-500 font-bold">Failed to load tournaments. Is backend running?</div>';
+            }
+        }
+        fetchTournaments();
+    </script>
+</body>
+
+</html>
