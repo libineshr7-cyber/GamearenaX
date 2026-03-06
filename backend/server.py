@@ -134,7 +134,7 @@ def send_registration_email(player_email: str, player_name: str, tournament_name
         msg['Subject'] = f"Registration Received - {tournament_name}"
         msg['From'] = smtp_user
         msg['To'] = player_email
-        msg.set_content(f"Hello {player_name},\n\We have received your registration and payment screenshot for {tournament_name} (Requested Slot #{slot_number}).\n\nYour registration is currently PENDING. You will receive another email once an admin verifies your payment and approves your slot.\n\nThank you!")
+        msg.set_content(f"Hello {player_name},\n\nWe have received your registration and payment screenshot for {tournament_name} (Requested Slot #{slot_number}).\n\nYour registration is currently PENDING. You will receive another email once an admin verifies your payment and approves your slot.\n\nThank you!")
         with smtplib.SMTP("smtp.gmail.com", 587) as server:
             server.starttls()
             server.login(smtp_user, smtp_pass)
