@@ -15,12 +15,30 @@ import jwt
 import smtplib
 from email.message import EmailMessage
 
+import urllib.parse
+import re
+
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-mongo_url = os.environ['MONGO_URL']
+def get_safe_mongo_url(raw_url: str) -> str:
+    if not raw_url: return raw_url
+    match = re.match(r"^(mongodb(?:\+srv)?://)([^:]+):(.*)@([^@/]+)(/.*)?$", raw_url)
+    if match:
+        scheme, user, password, cluster, rest = match.groups()
+        # Decode first in case user already URL-encoded parts of it, to avoid double-encoding
+        password = urllib.parse.unquote_plus(password)
+        user = urllib.parse.unquote_plus(user)
+        # Safely re-encode special characters like @, #, !
+        safe_pass = urllib.parse.quote_plus(password)
+        safe_user = urllib.parse.quote_plus(user)
+        rest = rest or ""
+        return f"{scheme}{safe_user}:{safe_pass}@{cluster}{rest}"
+    return raw_url
+
+mongo_url = get_safe_mongo_url(os.environ.get('MONGO_URL', ''))
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+db = client[os.environ.get('DB_NAME', 'test_database')]
 
 JWT_SECRET = os.environ.get('JWT_SECRET', 'your-secret-key-change-in-production')
 JWT_ALGORITHM = 'HS256'
