@@ -8,7 +8,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="styles.css">
     <script>
-        window.getApiUrl = function() {
+        window.getApiUrl = function () {
             if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                 return 'http://localhost:8000/api';
             }
@@ -30,6 +30,8 @@
                 Pool</button>
             <button onclick="switchTab('queries')" id="tab-queries"
                 class="px-6 py-3 font-rajdhani font-bold text-lg uppercase border-b-2 border-transparent text-[#A1A1AA] hover:text-white transition-colors">Queries</button>
+            <button onclick="switchTab('history')" id="tab-history"
+                class="px-6 py-3 font-rajdhani font-bold text-lg uppercase border-b-2 border-transparent text-[#A1A1AA] hover:text-white transition-colors">History</button>
         </div>
 
         <div id="section-dashboard">
@@ -168,6 +170,15 @@
                 </table>
             </div>
         </div>
+
+        <div id="section-history" class="hidden">
+            <div class="bg-zinc-900/50 border border-white/10 rounded-xl p-6 overflow-x-auto tracing-beam">
+                <h3 class="font-rajdhani font-bold text-xl uppercase mb-4 text-[#A1A1AA] pl-2">Past Tournaments</h3>
+                <div id="admin-history-list" class="space-y-4">
+                    <p class="text-[#A1A1AA] font-chakra text-center py-4">Loading history...</p>
+                </div>
+            </div>
+        </div>
     </div>
     <script>
         const API = window.getApiUrl();
@@ -203,8 +214,36 @@
                     loadStatsForTournament(currentTid, h),
                     loadContacts(h)
                 ]);
+                loadAdminHistory();
             } catch (err) { console.error(err); }
         }
+
+        function loadAdminHistory() {
+            const past = tournaments.filter(t => !t.is_active);
+            const list = document.getElementById('admin-history-list');
+
+            if (past.length === 0) {
+                list.innerHTML = '<p class="text-[#A1A1AA] font-chakra text-center py-8">No past tournaments found.</p>';
+                return;
+            }
+
+            list.innerHTML = past.map(t => `
+                <div class="bg-black/50 border border-white/10 rounded-lg p-5 flex flex-col sm:flex-row justify-between items-center hover:border-zinc-500/50 transition-colors">
+                    <div class="mb-4 sm:mb-0 text-center sm:text-left">
+                        <h4 class="font-rajdhani font-bold text-2xl text-white uppercase tracking-wider">${t.name}</h4>
+                        <p class="text-sm text-[#A1A1AA] font-chakra flex items-center justify-center sm:justify-start gap-2"><i data-lucide="calendar" class="w-4 h-4"></i> ${new Date(t.date).toLocaleDateString()} &bull; MAX SLOTS: ${t.max_slots}</p>
+                    </div>
+                    <button onclick="viewPastRegistrations('${t.id}')" class="px-6 py-3 border border-white/20 text-white hover:bg-white hover:text-black hover:border-white font-rajdhani font-bold uppercase tracking-widest rounded transition-all shadow-lg">View Details</button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        window.viewPastRegistrations = (tid) => {
+            document.getElementById('tournament-select').value = tid;
+            switchTournament();
+            switchTab('registrations');
+        };
 
         async function loadContacts(h) {
             try {
@@ -307,7 +346,7 @@
         }
 
         window.switchTab = (tab) => {
-            ['dashboard', 'registrations', 'prizepool', 'queries'].forEach(t => {
+            ['dashboard', 'registrations', 'prizepool', 'queries', 'history'].forEach(t => {
                 document.getElementById('section-' + t).classList.add('hidden');
                 document.getElementById('tab-' + t).classList.remove('border-[#FFD700]', 'text-[#FFD700]');
                 document.getElementById('tab-' + t).classList.add('border-transparent', 'text-[#A1A1AA]');
