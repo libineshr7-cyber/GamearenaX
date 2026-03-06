@@ -7,6 +7,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="styles.css">
+    <script>
+        window.getApiUrl = function() {
+            if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                return 'http://localhost:8000/api';
+            }
+            return window.location.protocol + '//' + window.location.hostname + ':8000/api';
+        };
+    </script>
 </head>
 
 <body class="min-h-screen bg-[#050505] text-white flex items-center justify-center grain">
@@ -28,7 +36,7 @@
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const p = document.getElementById('password').value;
-            const res = await fetch('/api/admin/login', {
+            const res = await fetch(window.getApiUrl() + '/admin/login', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ password: p })
             });

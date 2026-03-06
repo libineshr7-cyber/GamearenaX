@@ -30,6 +30,14 @@
             color: transparent;
         }
     </style>
+    <script>
+        window.getApiUrl = function() {
+            if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                return 'http://localhost:8000/api';
+            }
+            return window.location.protocol + '//' + window.location.hostname + ':8000/api';
+        };
+    </script>
 </head>
 
 <body class="min-h-screen bg-black text-white overflow-x-hidden selection:bg-[#FFD700] selection:text-black">
@@ -191,7 +199,7 @@
 
         async function fetchSettings() {
             try {
-                const res = await fetch('/api/settings');
+                const res = await fetch(window.getApiUrl() + '/settings');
                 if (!res.ok) throw new Error("Settings fetch failed");
                 if (res.ok) {
                     const settings = await res.json();
@@ -201,7 +209,7 @@
                     }
                 }
 
-                const tRes = await fetch('/api/public/tournaments');
+                const tRes = await fetch(window.getApiUrl() + '/public/tournaments');
                 if (!tRes.ok) throw new Error("Tournaments fetch failed");
                 if (tRes.ok) {
                     const tournaments = await tRes.json();
