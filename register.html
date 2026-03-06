@@ -8,7 +8,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="styles.css">
     <script>
-        window.getApiUrl = function() {
+        window.getApiUrl = function () {
             if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                 return 'http://localhost:8000/api';
             }
@@ -114,7 +114,7 @@
             try {
                 const urlParams = new URLSearchParams(window.location.search);
                 const tId = urlParams.get('tournament_id');
-                const fetchUrl = tId ? `/api/slots?tournament_id=${tId}` : `/api/slots`;
+                const fetchUrl = tId ? `${window.getApiUrl()}/slots?tournament_id=${tId}` : `${window.getApiUrl()}/slots`;
                 const res = await fetch(fetchUrl);
                 const slots = await res.json();
                 const select = document.getElementById('slot_number');
