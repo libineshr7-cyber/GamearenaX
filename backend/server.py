@@ -375,7 +375,13 @@ async def get_stats(tournament_id: Optional[str] = None, payload: dict = Depends
     return TournamentStats(total_registrations=total, max_registrations=t.get("max_slots", 50), total_prize_pool=total_prize, pending_count=pending, approved_count=approved)
 
 app.include_router(api_router)
-app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','), allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_credentials=False,  # Wildcard '*' is not allowed with allow_credentials=True
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 

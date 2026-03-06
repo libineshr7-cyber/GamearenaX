@@ -252,6 +252,7 @@
                     list.innerHTML = `
                         <div class="glass-panel p-12 rounded-2xl text-center col-span-full border-red-500/20">
                             <p class="text-red-400 font-sans">Unable to connect to game servers.</p>
+                            <p class="text-zinc-600 text-[10px] mt-2 font-mono">DEBUG: ${err.message} | URL: ${window.getApiUrl()}</p>
                         </div>
                     `;
                 }
