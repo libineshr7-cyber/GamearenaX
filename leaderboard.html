@@ -48,7 +48,7 @@
                     <tr class="text-purple-400 font-rajdhani text-lg uppercase border-b border-purple-500/30">
                         <th class="p-4 rounded-tl-lg">RANK</th>
                         <th class="p-4">PLAYER (TEAM)</th>
-                        <th class="p-4 text-center">BOOYAH VIP</th>
+                        <th class="p-4 text-center">RANKED</th>
                         <th class="p-4 text-center">KILLS</th>
                         <th class="p-4 text-right rounded-tr-lg">WON PRIZE</th>
                     </tr>
@@ -67,7 +67,7 @@
 
         async function initTournaments() {
             try {
-                const res = await fetch('http://localhost:8000/api/public/tournaments');
+                const res = await fetch('/api/public/tournaments');
                 if (!res.ok) throw new Error("HTTP error " + res.status);
                 const tournaments = await res.json();
                 const selector = document.getElementById('tournament-selector');
@@ -110,7 +110,7 @@
             const body = document.getElementById('leaderboard-body');
 
             try {
-                const res = await fetch(`http://localhost:8000/api/public/leaderboard?tournament_id=${currentTournamentId}`);
+                const res = await fetch(`/api/public/leaderboard?tournament_id=${currentTournamentId}`);
                 const players = await res.json();
 
                 if (!players || players.length === 0) {
@@ -130,7 +130,7 @@
                                 <span class="text-xs text-purple-400 uppercase tracking-widest">${p.team_name}</span>
                             </td>
                             <td class="p-4 text-center">
-                                ${p.is_booyah_winner ? '<span class="inline-block bg-[#FFD700] text-black px-2 py-1 rounded text-xs font-bold font-rajdhani uppercase"><i data-lucide="crown" class="w-3 h-3 inline mr-1 mb-0.5"></i>Win</span>' : '-'}
+                                ${p.tournament_rank === 1 ? '<span class="inline-block bg-[#FFD700] text-black px-2 py-1 rounded text-xs font-bold font-rajdhani uppercase"><i data-lucide="crown" class="w-3 h-3 inline mr-1 mb-0.5"></i>1st</span>' : p.tournament_rank === 2 ? '<span class="inline-block bg-zinc-300 text-black px-2 py-1 rounded text-xs font-bold font-rajdhani uppercase">2nd</span>' : p.tournament_rank === 3 ? '<span class="inline-block bg-amber-600 text-black px-2 py-1 rounded text-xs font-bold font-rajdhani uppercase">3rd</span>' : '-'}
                             </td>
                             <td class="p-4 text-center font-bold text-white text-xl">${p.kills}</td>
                             <td class="p-4 text-right font-bold text-[#00FFFF] text-xl">₹${p.total_prize}</td>

@@ -11,106 +11,158 @@
 
 <body class="min-h-screen bg-[#050505] text-white p-6 font-chakra">
     <div class="max-w-7xl mx-auto border-white/10">
-        <div class="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
-            <h1 class="font-rajdhani font-bold text-4xl text-[#FFD700] uppercase tracking-wider">Tournament Dashboard
-            </h1>
-            <button onclick="localStorage.clear(); window.location='index.html'"
-                class="text-red-500 font-bold hover:text-red-400">Logout</button>
+        <!-- Tabs -->
+        <div class="flex border-b border-white/10 mb-8 overflow-x-auto whitespace-nowrap hide-scrollbar">
+            <button onclick="switchTab('dashboard')" id="tab-dashboard"
+                class="px-6 py-3 font-rajdhani font-bold text-lg uppercase border-b-2 border-[#FFD700] text-[#FFD700]">Dashboard</button>
+            <button onclick="switchTab('registrations')" id="tab-registrations"
+                class="px-6 py-3 font-rajdhani font-bold text-lg uppercase border-b-2 border-transparent text-[#A1A1AA] hover:text-white transition-colors">Registrations</button>
+            <button onclick="switchTab('prizepool')" id="tab-prizepool"
+                class="px-6 py-3 font-rajdhani font-bold text-lg uppercase border-b-2 border-transparent text-[#A1A1AA] hover:text-white transition-colors">Prize
+                Pool</button>
+            <button onclick="switchTab('queries')" id="tab-queries"
+                class="px-6 py-3 font-rajdhani font-bold text-lg uppercase border-b-2 border-transparent text-[#A1A1AA] hover:text-white transition-colors">Queries</button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-            <div class="bg-zinc-900/50 border border-white/10 rounded-xl p-6">
-                <h2
-                    class="font-rajdhani font-bold text-2xl text-[#FFD700] mb-4 uppercase flex justify-between items-center">
-                    Manage Tournaments
-                    <button onclick="createTournamentBtn()"
-                        class="text-sm px-4 py-1 bg-white/10 hover:bg-white/20 text-white rounded">CREATE NEW</button>
-                </h2>
+        <div id="section-dashboard">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div class="bg-zinc-900/50 border border-white/10 rounded-xl p-6">
+                    <h2
+                        class="font-rajdhani font-bold text-2xl text-[#FFD700] mb-4 uppercase flex justify-between items-center">
+                        Manage Tournaments
+                        <button onclick="createTournamentBtn()"
+                            class="text-sm px-4 py-1 bg-white/10 hover:bg-white/20 text-white rounded">CREATE
+                            NEW</button>
+                    </h2>
 
-                <div class="space-y-4">
-                    <label class="font-chakra text-sm text-[#A1A1AA] block">SELECT TOURNAMENT</label>
-                    <select id="tournament-select" onchange="switchTournament()"
-                        class="w-full bg-black border border-white/20 px-4 py-3 text-white font-chakra focus:outline-none focus:border-[#FFD700]">
-                    </select>
+                    <div class="space-y-4">
+                        <label class="font-chakra text-sm text-[#A1A1AA] block">SELECT TOURNAMENT</label>
+                        <select id="tournament-select" onchange="switchTournament()"
+                            class="w-full bg-black border border-white/20 px-4 py-3 text-white font-chakra focus:outline-none focus:border-[#FFD700]">
+                        </select>
+                    </div>
+
+                    <div class="mt-6 pt-6 border-t border-white/10 hidden" id="tournament-controls">
+                        <button onclick="activateTournament()"
+                            class="px-6 py-2 bg-green-500/20 text-green-400 hover:bg-green-500/40 font-bold rounded mb-2">Set
+                            as
+                            Active Public Tournament</button>
+                        <button onclick="deleteTournament()"
+                            class="px-6 py-2 bg-red-500/20 text-red-500 hover:bg-red-500/40 font-bold rounded ml-2 mb-2">Delete
+                            Tournament</button>
+                        <span id="active-badge" class="ml-4 text-[#FFD700] text-sm font-bold hidden"><i
+                                data-lucide="check-circle" class="w-4 h-4 inline mr-1"></i>CURRENTLY ACTIVE</span>
+                    </div>
                 </div>
 
-                <div class="mt-6 pt-6 border-t border-white/10 hidden" id="tournament-controls">
-                    <button onclick="activateTournament()"
-                        class="px-6 py-2 bg-green-500/20 text-green-400 hover:bg-green-500/40 font-bold rounded mb-2">Set
-                        as
-                        Active Public Tournament</button>
-                    <button onclick="deleteTournament()"
-                        class="px-6 py-2 bg-red-500/20 text-red-500 hover:bg-red-500/40 font-bold rounded ml-2 mb-2">Delete
-                        Tournament</button>
-                    <span id="active-badge" class="ml-4 text-[#FFD700] text-sm font-bold hidden"><i
-                            data-lucide="check-circle" class="w-4 h-4 inline mr-1"></i>CURRENTLY ACTIVE</span>
+                <div class="bg-zinc-900/50 border border-[#00FFFF]/30 rounded-xl p-6 hidden" id="create-modal">
+                    <h2 class="font-rajdhani font-bold text-2xl text-[#00FFFF] mb-4 uppercase">Create Tournament</h2>
+                    <div class="space-y-4">
+                        <div><label class="font-chakra text-sm text-[#A1A1AA] block">NAME</label>
+                            <input type="text" id="new-name" placeholder="E.g. Summer Showdown"
+                                class="w-full bg-black border border-white/20 px-4 py-2 text-white font-chakra" />
+                        </div>
+                        <div><label class="font-chakra text-sm text-[#A1A1AA] block">MAX SLOTS</label>
+                            <input type="number" id="new-slots" value="50"
+                                class="w-full bg-black border border-white/20 px-4 py-2 text-white font-chakra" />
+                        </div>
+                        <div><label class="font-chakra text-sm text-[#A1A1AA] block">DATE & TIME</label>
+                            <input type="datetime-local" id="new-date"
+                                class="w-full bg-black border border-white/20 px-4 py-2 text-white font-chakra" />
+                        </div>
+                        <button onclick="submitCreate()"
+                            class="w-full font-rajdhani font-bold px-8 py-3 bg-[#00FFFF] text-black hover:bg-[#00CCCC] tactical-clip mt-2">CREATE
+                            TOURNAMENT</button>
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-zinc-900/50 border border-[#00FFFF]/30 rounded-xl p-6 hidden" id="create-modal">
-                <h2 class="font-rajdhani font-bold text-2xl text-[#00FFFF] mb-4 uppercase">Create Tournament</h2>
-                <div class="space-y-4">
-                    <div><label class="font-chakra text-sm text-[#A1A1AA] block">NAME</label>
-                        <input type="text" id="new-name" placeholder="E.g. Summer Showdown"
-                            class="w-full bg-black border border-white/20 px-4 py-2 text-white font-chakra" />
-                    </div>
-                    <div><label class="font-chakra text-sm text-[#A1A1AA] block">MAX SLOTS</label>
-                        <input type="number" id="new-slots" value="50"
-                            class="w-full bg-black border border-white/20 px-4 py-2 text-white font-chakra" />
-                    </div>
-                    <div><label class="font-chakra text-sm text-[#A1A1AA] block">DATE & TIME</label>
-                        <input type="datetime-local" id="new-date"
-                            class="w-full bg-black border border-white/20 px-4 py-2 text-white font-chakra" />
-                    </div>
-                    <button onclick="submitCreate()"
-                        class="w-full font-rajdhani font-bold px-8 py-3 bg-[#00FFFF] text-black hover:bg-[#00CCCC] tactical-clip mt-2">CREATE
-                        TOURNAMENT</button>
-                </div>
+            <div id="stats" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"></div>
+        </div>
+
+        <div id="section-registrations" class="hidden">
+            <div class="bg-zinc-900/50 border border-white/10 rounded-xl p-4 overflow-x-auto tracing-beam mb-8">
+                <h3 class="font-rajdhani font-bold text-xl uppercase mb-4 text-[#A1A1AA] pl-2">Registrations</h3>
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="text-[#FFD700] font-rajdhani text-lg uppercase border-b border-white/10">
+                            <th class="p-4">SLOT</th>
+                            <th class="p-4">PLAYER</th>
+                            <th class="p-4">UID & PAYMENT</th>
+                            <th class="p-4">STATUS</th>
+                            <th class="p-4">KILLS / RANK</th>
+                            <th class="p-4">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <div id="stats" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"></div>
-
-        <div class="bg-zinc-900/50 border border-white/10 rounded-xl p-4 overflow-x-auto tracing-beam mb-8">
-            <h3 class="font-rajdhani font-bold text-xl uppercase mb-4 text-[#A1A1AA] pl-2">Registrations</h3>
-            <table class="w-full text-left">
-                <thead>
-                    <tr class="text-[#FFD700] font-rajdhani text-lg uppercase border-b border-white/10">
-                        <th class="p-4">SLOT</th>
-                        <th class="p-4">PLAYER</th>
-                        <th class="p-4">UID & PAYMENT</th>
-                        <th class="p-4">STATUS</th>
-                        <th class="p-4">KILLS / BOOYAH</th>
-                        <th class="p-4">ACTIONS</th>
-                    </tr>
-                </thead>
-                <tbody id="table-body">
-                </tbody>
-            </table>
+        <div id="section-prizepool" class="hidden">
+            <div class="bg-zinc-900/50 border border-[#FFD700]/30 rounded-xl p-8 max-w-2xl mx-auto mb-8">
+                <h2 class="font-rajdhani font-bold text-3xl text-[#FFD700] mb-6 uppercase text-center">Prize Pool
+                    Structure</h2>
+                <div class="space-y-4 font-chakra text-lg">
+                    <div class="flex justify-between items-center bg-black/40 p-4 border border-white/10 rounded">
+                        <span class="text-[#A1A1AA]">Entry Fee</span>
+                        <span class="font-bold text-white">₹20 <span class="text-xs text-[#A1A1AA] font-normal">per
+                                player</span></span>
+                    </div>
+                    <div
+                        class="flex justify-between items-center bg-[#FFD700]/10 p-4 border border-[#FFD700]/30 rounded">
+                        <span class="font-bold text-[#FFD700] uppercase tracking-wider flex items-center gap-2"><i
+                                data-lucide="crown" class="w-5 h-5"></i> 1st Prize</span>
+                        <span class="font-bold text-white">₹120</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-zinc-300/10 p-4 border border-zinc-300/30 rounded">
+                        <span class="font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2"><i
+                                data-lucide="award" class="w-5 h-5"></i> 2nd Prize</span>
+                        <span class="font-bold text-white">₹60</span>
+                    </div>
+                    <div
+                        class="flex justify-between items-center bg-amber-600/10 p-4 border border-amber-600/30 rounded">
+                        <span class="font-bold text-amber-500 uppercase tracking-wider flex items-center gap-2"><i
+                                data-lucide="medal" class="w-5 h-5"></i> 3rd Prize</span>
+                        <span class="font-bold text-white">₹30</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-red-500/10 p-4 border border-red-500/30 rounded">
+                        <span class="font-bold text-red-400 uppercase tracking-wider flex items-center gap-2"><i
+                                data-lucide="crosshair" class="w-5 h-5"></i> Per Kill</span>
+                        <span class="font-bold text-white">₹10</span>
+                    </div>
+                </div>
+                <p class="mt-6 text-sm text-[#A1A1AA] text-center">Note: This structure is strictly coded globally.</p>
+            </div>
         </div>
 
-        <div class="bg-zinc-900/50 border border-purple-500/30 rounded-xl p-4 overflow-x-auto tracing-beam">
-            <h3 class="font-rajdhani font-bold text-xl uppercase mb-4 text-purple-400 pl-2 flex justify-between items-center">
-                User Queries & Complaints
-                <span id="unread-count" class="bg-purple-500 text-white text-xs px-2 py-1 rounded-full hidden">0 Unread</span>
-            </h3>
-            <table class="w-full text-left">
-                <thead>
-                    <tr class="text-purple-400 font-rajdhani text-lg uppercase border-b border-purple-500/30">
-                        <th class="p-4 rounded-tl-lg">DATE</th>
-                        <th class="p-4">USER</th>
-                        <th class="p-4">SUBJECT</th>
-                        <th class="p-4">MESSAGE</th>
-                        <th class="p-4 rounded-tr-lg">STATUS</th>
-                    </tr>
-                </thead>
-                <tbody id="contacts-body">
-                </tbody>
-            </table>
+        <div id="section-queries" class="hidden">
+            <div class="bg-zinc-900/50 border border-purple-500/30 rounded-xl p-4 overflow-x-auto tracing-beam">
+                <h3
+                    class="font-rajdhani font-bold text-xl uppercase mb-4 text-purple-400 pl-2 flex justify-between items-center">
+                    User Queries & Complaints
+                    <span id="unread-count" class="bg-purple-500 text-white text-xs px-2 py-1 rounded-full hidden">0
+                        Unread</span>
+                </h3>
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="text-purple-400 font-rajdhani text-lg uppercase border-b border-purple-500/30">
+                            <th class="p-4 rounded-tl-lg">DATE</th>
+                            <th class="p-4">USER</th>
+                            <th class="p-4">SUBJECT</th>
+                            <th class="p-4">MESSAGE</th>
+                            <th class="p-4 rounded-tr-lg">STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contacts-body">
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     <script>
-        const API = 'http://localhost:8000/api';
+        const API = '/api';
         const t = localStorage.getItem('admin_token');
         if (!t) window.location.href = 'login.html';
 
@@ -150,9 +202,9 @@
             try {
                 const res = await fetch(`${API}/contacts`, { headers: h });
                 const contacts = await res.json();
-                
+
                 const unread = contacts.filter(c => !c.is_read).length;
-                if(unread > 0) {
+                if (unread > 0) {
                     const badge = document.getElementById('unread-count');
                     badge.innerText = `${unread} New`;
                     badge.classList.remove('hidden');
@@ -175,7 +227,7 @@
                     </tr>
                 `).join('');
                 lucide.createIcons();
-            } catch(e) { console.error(e); }
+            } catch (e) { console.error(e); }
         }
 
         window.markRead = async (id) => {
@@ -231,7 +283,12 @@
                     </td>
                     <td class="p-4">
                         <input type="number" value="${r.kills}" onblur="update('${r.id}','kills',this.value)" class="bg-black border border-white/20 w-16 px-2 py-1 text-center font-chakra mr-2" />
-                        <button onclick="update('${r.id}','booyah',${!r.is_booyah_winner})" class="px-3 py-1 font-bold ${r.is_booyah_winner ? 'bg-[#FFD700] text-black' : 'bg-zinc-800 text-white border border-white/30'}">B</button>
+                        <select onchange="update('${r.id}','rank',this.value)" class="bg-zinc-800 text-white border border-white/30 px-2 py-1 font-chakra w-24">
+                            <option value="0" ${!r.tournament_rank ? 'selected' : ''}>None</option>
+                            <option value="1" ${r.tournament_rank == 1 ? 'selected' : ''}>1st</option>
+                            <option value="2" ${r.tournament_rank == 2 ? 'selected' : ''}>2nd</option>
+                            <option value="3" ${r.tournament_rank == 3 ? 'selected' : ''}>3rd</option>
+                        </select>
                     </td>
                     <td class="p-4">
                         ${r.status == 'pending' ? `<button onclick="update('${r.id}','status','approved')" class="text-xs px-3 py-1 bg-green-500/20 text-green-400 hover:bg-green-500/40 rounded mr-2">APPROVE</button><button onclick="update('${r.id}','status','rejected')" class="text-xs px-3 py-1 bg-red-500/20 text-red-400 hover:bg-red-500/40 rounded">REJECT</button>` : `<button onclick="update('${r.id}','status','pending')" class="text-xs px-3 py-1 bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/40 rounded">RESET</button>`}
@@ -241,13 +298,24 @@
             lucide.createIcons();
         }
 
+        window.switchTab = (tab) => {
+            ['dashboard', 'registrations', 'prizepool', 'queries'].forEach(t => {
+                document.getElementById('section-' + t).classList.add('hidden');
+                document.getElementById('tab-' + t).classList.remove('border-[#FFD700]', 'text-[#FFD700]');
+                document.getElementById('tab-' + t).classList.add('border-transparent', 'text-[#A1A1AA]');
+            });
+            document.getElementById('section-' + tab).classList.remove('hidden');
+            document.getElementById('tab-' + tab).classList.remove('border-transparent', 'text-[#A1A1AA]');
+            document.getElementById('tab-' + tab).classList.add('border-[#FFD700]', 'text-[#FFD700]');
+        };
+
         window.switchTournament = () => {
             currentTid = document.getElementById('tournament-select').value;
             loadStatsForTournament(currentTid, { Authorization: 'Bearer ' + t });
         }
 
         window.update = async (id, type, val) => {
-            const body = type == 'kills' ? { kills: parseInt(val) } : type == 'status' ? { status: val } : { is_booyah_winner: val };
+            const body = type == 'kills' ? { kills: parseInt(val) } : type == 'status' ? { status: val } : { rank: parseInt(val) };
             await fetch(`${API}/registrations/${id}/${type}`, {
                 method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + t },
                 body: JSON.stringify(body)

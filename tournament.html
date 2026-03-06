@@ -96,7 +96,7 @@
 
         async function fetchTournaments() {
             try {
-                const res = await fetch('http://localhost:8000/api/public/tournaments');
+                const res = await fetch('/api/public/tournaments');
                 if (res.ok) {
                     const tournaments = await res.json();
                     const tabsContainer = document.getElementById('tournaments-tabs');

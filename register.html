@@ -106,7 +106,7 @@
             try {
                 const urlParams = new URLSearchParams(window.location.search);
                 const tId = urlParams.get('tournament_id');
-                const fetchUrl = tId ? `http://localhost:8000/api/slots?tournament_id=${tId}` : `http://localhost:8000/api/slots`;
+                const fetchUrl = tId ? `/api/slots?tournament_id=${tId}` : `/api/slots`;
                 const res = await fetch(fetchUrl);
                 const slots = await res.json();
                 const select = document.getElementById('slot_number');
@@ -152,7 +152,7 @@
 
             const btn = document.getElementById('submit-btn'); btn.innerText = "Submitting...";
             try {
-                const res = await fetch('http://localhost:8000/api/register', {
+                const res = await fetch('/api/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

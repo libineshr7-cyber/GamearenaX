@@ -1,4 +1,5 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Depends, UploadFile, File, Form, BackgroundTasks
+from fastapi.staticfiles import StaticFiles
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -50,7 +51,7 @@ class Registration(BaseModel):
     payment_screenshot: str
     slot_number: Optional[int] = None
     kills: int = 0
-    is_booyah_winner: bool = False
+    tournament_rank: int = 0
     total_prize: float = 0.0
     registered_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     status: str = "pending"
@@ -75,7 +76,7 @@ class ContactForm(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
 
 class UpdateKills(BaseModel): kills: int
-class UpdateBooyah(BaseModel): is_booyah_winner: bool
+class UpdateRank(BaseModel): rank: int
 class UpdateStatus(BaseModel): status: str
 class AdminLogin(BaseModel): password: str
 
@@ -269,10 +270,14 @@ async def get_leaderboard(tournament_id: Optional[str] = None):
     if not t: return []
     
     query = {"tournament_id": t["id"], "status": "approved"}
-    registrations = await db.registrations.find(query, {"_id": 0, "player_name": 1, "team_name": 1, "kills": 1, "is_booyah_winner": 1, "total_prize": 1}).sort([("kills", -1)]).to_list(100)
+    registrations = await db.registrations.find(query, {"_id": 0, "player_name": 1, "team_name": 1, "kills": 1, "tournament_rank": 1, "total_prize": 1}).to_list(100)
     
-    # Sort with booyah winner on top, then by kills
-    registrations.sort(key=lambda x: (1 if x.get('is_booyah_winner') else 0, x.get('kills', 0)), reverse=True)
+    # Sort with rank 1 first, then by kills. If rank is 0, they come after ranked players.
+    def get_sort_key(x):
+        r = x.get('tournament_rank', 0)
+        return (-1 if r == 0 else r, -x.get('kills', 0))
+    
+    registrations.sort(key=get_sort_key)
     return registrations
 
 @api_router.get("/slots")
@@ -302,16 +307,25 @@ async def get_slots(tournament_id: Optional[str] = None):
 async def update_kills(registration_id: str, input: UpdateKills, payload: dict = Depends(verify_jwt_token)):
     reg = await db.registrations.find_one({"id": registration_id})
     if not reg: raise HTTPException(status_code=404, detail="Not found")
-    total_prize = (input.kills * 20) + (100 if reg.get('is_booyah_winner', False) else 0)
+    
+    # Prize pool logic
+    rank_prizes = {1: 120, 2: 60, 3: 30}
+    rank_prize = rank_prizes.get(reg.get('tournament_rank', 0), 0)
+    total_prize = (input.kills * 10) + rank_prize
+    
     await db.registrations.update_one({"id": registration_id}, {"$set": {"kills": input.kills, "total_prize": total_prize}})
     return {"message": "Success"}
 
-@api_router.put("/registrations/{registration_id}/booyah")
-async def update_booyah(registration_id: str, input: UpdateBooyah, payload: dict = Depends(verify_jwt_token)):
+@api_router.put("/registrations/{registration_id}/rank")
+async def update_rank(registration_id: str, input: UpdateRank, payload: dict = Depends(verify_jwt_token)):
     reg = await db.registrations.find_one({"id": registration_id})
     if not reg: raise HTTPException(status_code=404, detail="Not found")
-    total_prize = (reg.get('kills', 0) * 20) + (100 if input.is_booyah_winner else 0)
-    await db.registrations.update_one({"id": registration_id}, {"$set": {"is_booyah_winner": input.is_booyah_winner, "total_prize": total_prize}})
+    
+    rank_prizes = {1: 120, 2: 60, 3: 30}
+    rank_prize = rank_prizes.get(input.rank, 0)
+    total_prize = (reg.get('kills', 0) * 10) + rank_prize
+    
+    await db.registrations.update_one({"id": registration_id}, {"$set": {"tournament_rank": input.rank, "total_prize": total_prize}})
     return {"message": "Success"}
 
 @api_router.put("/registrations/{registration_id}/status")
@@ -346,6 +360,9 @@ app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','), allow_methods=["*"], allow_headers=["*"])
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+# Mount static frontend files for mobile access directly from backend port!
+app.mount("/", StaticFiles(directory=str(ROOT_DIR.parent), html=True), name="frontend")
 
 @app.on_event("shutdown")
 async def shutdown_db_client(): client.close()

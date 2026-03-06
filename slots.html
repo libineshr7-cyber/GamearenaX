@@ -67,7 +67,7 @@
 
         async function initTournaments() {
             try {
-                const res = await fetch('http://localhost:8000/api/public/tournaments');
+                const res = await fetch('/api/public/tournaments');
                 if (!res.ok) throw new Error("HTTP error " + res.status);
                 const tournaments = await res.json();
                 const selector = document.getElementById('tournament-selector');
@@ -112,7 +112,7 @@
                 document.getElementById('top-register-btn').href = `register.html?tournament_id=${currentTournamentId}`;
                 document.getElementById('bottom-register-btn').href = `register.html?tournament_id=${currentTournamentId}`;
 
-                const fetchUrl = `http://localhost:8000/api/slots?tournament_id=${currentTournamentId}`;
+                const fetchUrl = `/api/slots?tournament_id=${currentTournamentId}`;
                 const res = await fetch(fetchUrl);
                 const slots = await res.json();
 
