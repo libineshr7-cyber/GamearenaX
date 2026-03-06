@@ -192,6 +192,7 @@
         async function fetchSettings() {
             try {
                 const res = await fetch('http://localhost:8000/api/settings');
+                if (!res.ok) throw new Error("Settings fetch failed");
                 if (res.ok) {
                     const settings = await res.json();
                     if (settings.max_slots) {
@@ -201,6 +202,7 @@
                 }
 
                 const tRes = await fetch('http://localhost:8000/api/public/tournaments');
+                if (!tRes.ok) throw new Error("Tournaments fetch failed");
                 if (tRes.ok) {
                     const tournaments = await tRes.json();
                     const list = document.getElementById('tournaments-list');
