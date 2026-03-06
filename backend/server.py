@@ -37,8 +37,17 @@ def get_safe_mongo_url(raw_url: str) -> str:
     return raw_url
 
 mongo_url = get_safe_mongo_url(os.environ.get('MONGO_URL', ''))
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ.get('DB_NAME', 'test_database')]
+db_name = os.environ.get('DB_NAME', 'test_database')
+
+if not mongo_url:
+    print("CRITICAL ERROR: MONGO_URL is missing from environment variables!")
+    print("Please add MONGO_URL to your Render Environment Variables.")
+
+try:
+    client = AsyncIOMotorClient(mongo_url)
+    db = client[db_name]
+except Exception as e:
+    print(f"CRITICAL ERROR: Failed to connect to MongoDB: {e}")
 
 JWT_SECRET = os.environ.get('JWT_SECRET', 'your-secret-key-change-in-production')
 JWT_ALGORITHM = 'HS256'

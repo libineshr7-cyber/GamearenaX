@@ -133,7 +133,7 @@
                     `;
                 }).join('');
             } catch (err) {
-                grid.innerHTML = '<p class="text-red-500 col-span-full text-center">Failed to load slots data. Is backend running?</p>';
+                grid.innerHTML = `<p class="text-red-500 col-span-full text-center">Failed to load slots data. Is backend running?<br><span class="text-xs text-zinc-600">Error: ${err.message} | API: ${window.getApiUrl()}</span></p>`;
             }
         }
         initTournaments();

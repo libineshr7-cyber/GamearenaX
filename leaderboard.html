@@ -142,9 +142,9 @@
                 }).join('');
 
                 lucide.createIcons();
-            } catch (e) {
-                console.error(e);
-                body.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-500">Failed to load leaderboard. Server may be down.</td></tr>';
+            } catch (err) {
+                console.error(err);
+                body.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500">Failed to load leaderboard. Server may be down.<br><span class="text-xs text-zinc-600">Error: ${err.message} | API: ${window.getApiUrl()}</span></td></tr>`;
             }
         }
 
