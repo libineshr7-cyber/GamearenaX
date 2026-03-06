@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -8,12 +8,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="styles.css">
     <script>
-        window.getApiUrl = function() {
-            if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                return 'http://localhost:8000/api';
-            }
-            return window.location.protocol + '//' + window.location.hostname + ':8000/api';
-        };
+        window.getApiUrl = function () { if (window.location.hostname.includes('onrender.com')) return '/api'; if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') { return 'http://localhost:8000/api'; } return window.location.protocol + '//' + window.location.hostname + ':8000/api'; };
     </script>
 </head>
 
