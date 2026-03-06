@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prize Pool - Free Fire Tournament</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&family=Rajdhani:wght@500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        tailwind.config = { theme: { extend: { fontFamily: { sans: ['Outfit', 'sans-serif'], rajdhani: ['Rajdhani', 'sans-serif'] } } } }
+    </script>
+    <style>
+        .glass-panel {
+            background: rgba(10, 10, 12, 0.4);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+    </style>
+    <script>
+        window.getApiUrl = function () {
+            if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                return 'http://localhost:8000/api';
+            }
+            return window.location.protocol + '//' + window.location.hostname + ':8000/api';
+        };
+    </script>
+</head>
+
+<body class="min-h-screen bg-[#050505] text-white py-12 px-6 grain">
+    <div class="max-w-4xl mx-auto relative z-10">
+        <a href="index.html"
+            class="font-rajdhani flex items-center gap-2 text-[#A1A1AA] hover:text-[#FFD700] transition-colors mb-8 uppercase tracking-widest font-bold">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i> Back to Home
+        </a>
+
+        <div class="text-center mb-12">
+            <h1 class="font-rajdhani font-bold text-5xl uppercase tracking-wide mb-4">
+                <span class="text-[#FFD700]">PRIZE</span> POOL
+            </h1>
+            <p class="font-sans text-[#A1A1AA] max-w-2xl mx-auto">Review the global prize structure for our premium
+                matches. Prizes are dynamically calculated and distributed based on final standings and tactical
+                performance (kills).</p>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-8 md:p-12 mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h2
+                        class="font-rajdhani font-bold text-3xl uppercase tracking-wider mb-6 text-white border-b border-white/10 pb-4">
+                        Match Entry</h2>
+                    <div class="bg-black/50 border border-white/10 rounded-xl p-6">
+                        <div class="flex justify-between items-center">
+                            <span class="font-sans text-lg text-[#A1A1AA]">Entry Fee</span>
+                            <span class="font-rajdhani font-bold text-3xl text-white">₹20<span
+                                    class="text-sm text-[#A1A1AA] font-normal tracking-widest ml-1">/SLOT</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2
+                        class="font-rajdhani font-bold text-3xl uppercase tracking-wider mb-6 text-white border-b border-white/10 pb-4">
+                        Performance</h2>
+                    <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-6">
+                        <div class="flex justify-between items-center">
+                            <span
+                                class="font-sans text-lg text-red-400 font-bold uppercase tracking-widest flex items-center gap-2"><i
+                                    data-lucide="crosshair" class="w-6 h-6"></i> Per Kill</span>
+                            <span class="font-rajdhani font-bold text-3xl text-white">₹10</span>
+                        </div>
+                        <p class="text-sm text-red-400/70 mt-2 font-sans">Stack your kills to multiply your total
+                            winnings!</p>
+                    </div>
+                </div>
+            </div>
+
+            <h2
+                class="font-rajdhani font-bold text-3xl uppercase tracking-wider mt-12 mb-6 text-white border-b border-white/10 pb-4 text-center">
+                Final Placement Prizes</h2>
+            <div class="space-y-4">
+                <div
+                    class="flex flex-col sm:flex-row justify-between items-center bg-[#FFD700]/10 border border-[#FFD700]/30 rounded-xl p-6 hover:bg-[#FFD700]/20 transition-colors">
+                    <div class="flex items-center gap-4 mb-4 sm:mb-0">
+                        <div
+                            class="w-16 h-16 rounded-full bg-[#FFD700]/20 flex items-center justify-center border border-[#FFD700]/50 shadow-[0_0_20px_rgba(255,215,0,0.4)]">
+                            <i data-lucide="crown" class="w-8 h-8 text-[#FFD700]"></i>
+                        </div>
+                        <div>
+                            <span
+                                class="block font-rajdhani font-bold text-2xl text-[#FFD700] uppercase tracking-widest">1st
+                                Place</span>
+                            <span class="text-sm text-[#FFD700]/70 font-sans">BOOYAH! Champion</span>
+                        </div>
+                    </div>
+                    <span
+                        class="font-rajdhani font-bold text-5xl text-white drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]">₹120</span>
+                </div>
+
+                <div
+                    class="flex flex-col sm:flex-row justify-between items-center bg-zinc-300/10 border border-zinc-300/30 rounded-xl p-6 hover:bg-zinc-300/20 transition-colors">
+                    <div class="flex items-center gap-4 mb-4 sm:mb-0">
+                        <div
+                            class="w-16 h-16 rounded-full bg-zinc-300/20 flex items-center justify-center border border-zinc-300/50">
+                            <i data-lucide="award" class="w-8 h-8 text-zinc-300"></i>
+                        </div>
+                        <div>
+                            <span
+                                class="block font-rajdhani font-bold text-2xl text-zinc-300 uppercase tracking-widest">2nd
+                                Place</span>
+                            <span class="text-sm text-zinc-400 font-sans">Runner Up</span>
+                        </div>
+                    </div>
+                    <span class="font-rajdhani font-bold text-4xl text-white">₹60</span>
+                </div>
+
+                <div
+                    class="flex flex-col sm:flex-row justify-between items-center bg-amber-600/10 border border-amber-600/30 rounded-xl p-6 hover:bg-amber-600/20 transition-colors">
+                    <div class="flex items-center gap-4 mb-4 sm:mb-0">
+                        <div
+                            class="w-16 h-16 rounded-full bg-amber-600/20 flex items-center justify-center border border-amber-600/50">
+                            <i data-lucide="medal" class="w-8 h-8 text-amber-500"></i>
+                        </div>
+                        <div>
+                            <span
+                                class="block font-rajdhani font-bold text-2xl text-amber-500 uppercase tracking-widest">3rd
+                                Place</span>
+                            <span class="text-sm text-amber-600 font-sans">Bronze Tier</span>
+                        </div>
+                    </div>
+                    <span class="font-rajdhani font-bold text-4xl text-white">₹30</span>
+                </div>
+            </div>
+
+            <div class="mt-12 text-center">
+                <a href="tournament.html"
+                    class="inline-block px-10 py-4 bg-[#FFD700] text-black font-rajdhani font-bold text-xl uppercase tracking-widest rounded transition-all hover:bg-white hover:scale-105 shadow-[0_0_30px_rgba(255,215,0,0.3)]">Enter
+                    Today's Match</a>
+            </div>
+        </div>
+    </div>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
