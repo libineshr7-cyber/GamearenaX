@@ -7,3 +7,4 @@ pydantic-settings
 PyJWT
 python-multipart
 email-validator
+dnspython
