@@ -170,13 +170,21 @@
                     const activeTour = tournaments.find(t => t.is_active) || tournaments[0];
                     if (activeTour) window.switchTournamentTab(activeTour.id);
                 } else {
-                    document.getElementById('tournaments-content').innerHTML = '<div class="text-center text-red-500 font-bold">Failed to load tournaments (Server error).</div>';
+                    document.getElementById('tournaments-content').innerHTML = `
+                        <div class="text-center text-red-500 font-bold">
+                            Failed to load tournaments (Server error).<br>
+                            <span class="text-xs text-zinc-500">Status: ${res.status} ${res.statusText} | URL: ${res.url}</span>
+                        </div>`;
                 }
             } catch (err) {
                 console.error("Could not fetch tournaments", err);
                 const container = document.getElementById('tournaments-content');
                 if (container) {
-                    container.innerHTML = '<div class="text-center text-red-500 font-bold">Failed to load tournaments. Is backend running?</div>';
+                    container.innerHTML = `
+                        <div class="text-center text-red-500 font-bold">
+                            Failed to load tournaments. Is backend running?<br>
+                            <span class="text-xs text-zinc-500">Error: ${err.message} | API: ${window.getApiUrl()}</span>
+                        </div>`;
                 }
             }
         }
