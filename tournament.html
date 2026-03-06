@@ -165,11 +165,16 @@
 
                     // Activate first tab (prioritize active tournament)
                     const activeTour = tournaments.find(t => t.is_active) || tournaments[0];
-                    window.switchTournamentTab(activeTour.id);
+                    if (activeTour) window.switchTournamentTab(activeTour.id);
+                } else {
+                    document.getElementById('tournaments-content').innerHTML = '<div class="text-center text-red-500 font-bold">Failed to load tournaments (Server error).</div>';
                 }
             } catch (err) {
                 console.error("Could not fetch tournaments", err);
-                document.getElementById('tournaments-container').innerHTML = '<div class="text-center text-red-500 font-bold">Failed to load tournaments. Is backend running?</div>';
+                const container = document.getElementById('tournaments-content');
+                if (container) {
+                    container.innerHTML = '<div class="text-center text-red-500 font-bold">Failed to load tournaments. Is backend running?</div>';
+                }
             }
         }
         fetchTournaments();

@@ -68,6 +68,7 @@
         async function initTournaments() {
             try {
                 const res = await fetch('http://localhost:8000/api/public/tournaments');
+                if (!res.ok) throw new Error("HTTP error " + res.status);
                 const tournaments = await res.json();
                 const selector = document.getElementById('tournament-selector');
 
@@ -94,6 +95,8 @@
                 loadSlots();
             } catch (e) {
                 console.error(e);
+                document.getElementById('tournament-selector').innerHTML = '<option value="" disabled selected>Error loading tournaments. Backend down?</option>';
+                document.getElementById('slots-grid').innerHTML = '<p class="text-red-500 col-span-full text-center">Failed to load slots data. Is backend running?</p>';
             }
         }
 

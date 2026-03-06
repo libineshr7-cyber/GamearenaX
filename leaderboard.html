@@ -68,6 +68,7 @@
         async function initTournaments() {
             try {
                 const res = await fetch('http://localhost:8000/api/public/tournaments');
+                if (!res.ok) throw new Error("HTTP error " + res.status);
                 const tournaments = await res.json();
                 const selector = document.getElementById('tournament-selector');
 
@@ -92,7 +93,11 @@
                 }
 
                 loadLeaderboard();
-            } catch (e) { console.error(e); }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('tournament-selector').innerHTML = '<option value="" disabled selected>Error loading tournaments</option>';
+                document.getElementById('leaderboard-body').innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-500">Failed to load data. Is backend running?</td></tr>';
+            }
         }
 
         function tournamentChanged() {
