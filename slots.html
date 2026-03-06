@@ -15,7 +15,7 @@
         tailwind.config = { theme: { extend: {} }, corePlugins: { preflight: true } }
     </script>
     <script>
-        window.getApiUrl = function() {
+        window.getApiUrl = function () {
             if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                 return 'http://localhost:8000/api';
             }
@@ -120,7 +120,7 @@
                 document.getElementById('top-register-btn').href = `register.html?tournament_id=${currentTournamentId}`;
                 document.getElementById('bottom-register-btn').href = `register.html?tournament_id=${currentTournamentId}`;
 
-                const fetchUrl = `/api/slots?tournament_id=${currentTournamentId}`;
+                const fetchUrl = `${window.getApiUrl()}/slots?tournament_id=${currentTournamentId}`;
                 const res = await fetch(fetchUrl);
                 const slots = await res.json();
 
