@@ -1,0 +1,24 @@
+{
+  "name": "fftour",
+  "version": "1.0.0",
+  "description": "",
+  "main": "tailwind.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/libineshr7-cyber/GamearenaX.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/libineshr7-cyber/GamearenaX/issues"
+  },
+  "homepage": "https://github.com/libineshr7-cyber/GamearenaX#readme",
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
+}

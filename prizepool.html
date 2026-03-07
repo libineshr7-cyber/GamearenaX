@@ -5,15 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prize Pool - Free Fire Tournament</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&family=Rajdhani:wght@500;600;700&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="tailwind.css">
     <link rel="stylesheet" href="styles.css">
-    <script>
-        tailwind.config = { theme: { extend: { fontFamily: { sans: ['Outfit', 'sans-serif'], rajdhani: ['Rajdhani', 'sans-serif'] } } } }
-    </script>
     <style>
         .glass-panel {
             background: rgba(10, 10, 12, 0.4);
@@ -24,7 +21,13 @@
         }
     </style>
     <script>
-        window.getApiUrl = function () { if (window.location.hostname.includes('onrender.com')) return '/api'; if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') { return 'http://localhost:8000/api'; } return window.location.protocol + '//' + window.location.hostname + ':8000/api'; };
+        window.getApiUrl = function () {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                return 'http://localhost:8000/api';
+            }
+            if (window.location.hostname.includes('onrender.com')) return '/api';
+            return 'https://gamearenax.onrender.com/api';
+        };
     </script>
 </head>
 
