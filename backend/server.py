@@ -249,9 +249,7 @@ async def create_registration(input: RegistrationCreate, background_tasks: Backg
         
     slot_existing = next((r for r in regs if r.get("slot_number") == input.slot_number and r.get("status") in ["pending", "approved"]), None)
     if slot_existing: raise HTTPException(status_code=400, detail="Slot occupied.")
-    
-    email_existing = next((r for r in regs if r.get("email") == input.email), None)
-    if email_existing: raise HTTPException(status_code=400, detail="You have already registered for this tournament using this email address.")
+
     
     registration_dict = input.model_dump()
     registration_dict['tournament_id'] = t["id"]
