@@ -1,10 +1,8 @@
 fastapi
 uvicorn[standard]
 python-dotenv
-motor
 pydantic[email]
 pydantic-settings
 PyJWT
 python-multipart
 email-validator
-dnspython
