@@ -52,8 +52,7 @@ _local_db_cache: Optional[dict] = None   # in-memory cache for local mode
 
 _JSONBIN_BASE  = "https://api.jsonbin.io/v3/b"
 _JB_HEADERS_R  = {"X-Master-Key": JSONBIN_API_KEY, "X-Bin-Meta": "false"}
-_JB_HEADERS_W  = {**_JSONBIN_BASE and {}, "X-Master-Key": JSONBIN_API_KEY,
-                  "Content-Type": "application/json"}
+_JB_HEADERS_W  = {"X-Master-Key": JSONBIN_API_KEY, "Content-Type": "application/json"}
 
 def _jb_load() -> dict:
     """Read the entire database from JSONBin."""
@@ -377,31 +376,6 @@ GameArenaX Team
     except Exception as e:
         logger.error(f"Confirmation email failed: {e}")
         raise
-
-def send_sms_fast2sms(phone: str, player_name: str, tournament_name: str, slot_number):
-    api_key = os.environ.get('FAST2SMS_API_KEY')
-    if not api_key:
-        raise Exception("FAST2SMS_API_KEY not set in environment variables.")
-    phone_clean = phone.strip().replace("+91", "").replace("-", "").replace(" ", "")
-    if len(phone_clean) != 10:
-        raise Exception(f"Invalid phone number format: {phone}. Must be 10 digits.")
-    message = (
-        f"Hi {player_name}! Your GameArenaX registration is CONFIRMED!\n"
-        f"Tournament: {tournament_name}\nSlot No: #{slot_number}\n"
-        f"Entry Fee: Rs.20/slot\nPrizes: Rs.120(1st) Rs.60(2nd) Rs.30(3rd) Rs.10/kill\n"
-        f"Join room 15 min BEFORE match time. No late entries.\n"
-        f"Rules: No hacks/cheats. Admin decision is final.\nGood luck! -GameArenaX Team"
-    )
-    response = http_requests.post(
-        "https://www.fast2sms.com/dev/bulkV2",
-        headers={"authorization": api_key, "Content-Type": "application/json"},
-        json={"route": "q", "numbers": phone_clean, "message": message, "language": "english", "flash": 0},
-        timeout=10
-    )
-    result = response.json()
-    logger.info(f"Fast2SMS response: {result}")
-    if not result.get("return"):
-        raise Exception(f"Fast2SMS error: {result.get('message', 'Unknown error')}")
 
 # ── API Routes ────────────────────────────────────────────────────────────────
 
