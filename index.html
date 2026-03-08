@@ -206,9 +206,9 @@
         lucide.createIcons();
 
         async function fetchSettings() {
+            // Fetch settings (max slots display) — failure here does NOT block tournaments
             try {
                 const res = await fetch(window.getApiUrl() + '/settings');
-                if (!res.ok) throw new Error("Settings fetch failed");
                 if (res.ok) {
                     const settings = await res.json();
                     if (settings.max_slots) {
@@ -216,50 +216,50 @@
                         if (maxDisplay) maxDisplay.innerText = settings.max_slots;
                     }
                 }
-
-                const tRes = await fetch(window.getApiUrl() + '/public/tournaments');
-                if (!tRes.ok) throw new Error("Tournaments fetch failed");
-                if (tRes.ok) {
-                    const tournaments = await tRes.json();
-                    const list = document.getElementById('tournaments-list');
-                    if (tournaments.length === 0) {
-                        list.innerHTML = `
-                            <div class="glass-panel p-12 rounded-2xl text-center col-span-full">
-                                <p class="text-zinc-400 font-sans text-lg">No matches currently scheduled. Check back soon.</p>
-                            </div>
-                        `;
-                    } else {
-                        list.innerHTML = tournaments.map(t => `
-                            <div class="glass-panel p-8 rounded-2xl flex flex-col justify-between hover:border-white/20 transition-all hover:-translate-y-1">
-                                <div class="mb-8">
-                                    <div class="flex justify-between items-start mb-4">
-                                        <h3 class="font-rajdhani font-bold text-2xl uppercase max-w-[70%] leading-tight text-white">${t.name}</h3>
-                                        ${t.is_active ? '<span class="bg-green-500/10 text-green-400 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-green-500/20">Active</span>' : ''}
-                                    </div>
-                                    <div class="space-y-3 font-sans text-sm text-zinc-400">
-                                        <p class="flex items-center gap-3"><i data-lucide="calendar" class="w-4 h-4 text-[#FFD700] opacity-70"></i> <span class="text-zinc-200">${new Date(t.date).toLocaleString()}</span></p>
-                                        <p class="flex items-center gap-3"><i data-lucide="users" class="w-4 h-4 text-[#FFD700] opacity-70"></i> <span class="text-zinc-200">${t.max_slots} Maximum Slots</span></p>
-                                    </div>
-                                </div>
-                                <a href="register.html?tournament_id=${t.id}" class="w-full text-center font-rajdhani font-bold uppercase tracking-widest px-4 py-3 bg-white/5 hover:bg-[#FFD700] hover:text-black text-white rounded-lg transition-all duration-300">
-                                    Register Match
-                                </a>
-                            </div>
-                        `).join('');
-                        lucide.createIcons();
-                    }
-                }
             } catch (err) {
-                console.error("Could not fetch tournaments/settings", err);
-                const list = document.getElementById('tournaments-list');
-                if (list) {
+                console.warn("Settings fetch failed (non-critical):", err.message);
+            }
+
+            // Fetch tournaments — always runs independently
+            const list = document.getElementById('tournaments-list');
+            try {
+                const tRes = await fetch(window.getApiUrl() + '/public/tournaments');
+                if (!tRes.ok) throw new Error("Server returned " + tRes.status);
+                const tournaments = await tRes.json();
+                if (tournaments.length === 0) {
                     list.innerHTML = `
-                        <div class="glass-panel p-12 rounded-2xl text-center col-span-full border-red-500/20">
-                            <p class="text-red-400 font-sans">Unable to connect to game servers.</p>
-                            <p class="text-zinc-600 text-[10px] mt-2 font-mono">DEBUG: ${err.message} | URL: ${window.getApiUrl()}</p>
+                        <div class="glass-panel p-12 rounded-2xl text-center col-span-full">
+                            <p class="text-zinc-400 font-sans text-lg">No matches currently scheduled. Check back soon.</p>
                         </div>
                     `;
+                } else {
+                    list.innerHTML = tournaments.map(t => `
+                        <div class="glass-panel p-8 rounded-2xl flex flex-col justify-between hover:border-white/20 transition-all hover:-translate-y-1">
+                            <div class="mb-8">
+                                <div class="flex justify-between items-start mb-4">
+                                    <h3 class="font-rajdhani font-bold text-2xl uppercase max-w-[70%] leading-tight text-white">${t.name}</h3>
+                                    ${t.is_active ? '<span class="bg-green-500/10 text-green-400 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-green-500/20">Active</span>' : ''}
+                                </div>
+                                <div class="space-y-3 font-sans text-sm text-zinc-400">
+                                    <p class="flex items-center gap-3"><i data-lucide="calendar" class="w-4 h-4 text-[#FFD700] opacity-70"></i> <span class="text-zinc-200">${new Date(t.date).toLocaleString()}</span></p>
+                                    <p class="flex items-center gap-3"><i data-lucide="users" class="w-4 h-4 text-[#FFD700] opacity-70"></i> <span class="text-zinc-200">${t.max_slots} Maximum Slots</span></p>
+                                </div>
+                            </div>
+                            <a href="register.html?tournament_id=${t.id}" class="w-full text-center font-rajdhani font-bold uppercase tracking-widest px-4 py-3 bg-white/5 hover:bg-[#FFD700] hover:text-black text-white rounded-lg transition-all duration-300">
+                                Register Match
+                            </a>
+                        </div>
+                    `).join('');
+                    lucide.createIcons();
                 }
+            } catch (err) {
+                console.error("Could not fetch tournaments:", err);
+                list.innerHTML = `
+                    <div class="glass-panel p-12 rounded-2xl text-center col-span-full border-red-500/20">
+                        <p class="text-red-400 font-sans">Unable to connect to game servers.</p>
+                        <p class="text-zinc-600 text-[10px] mt-2 font-mono">DEBUG: ${err.message} | URL: ${window.getApiUrl()}</p>
+                    </div>
+                `;
             }
         }
         fetchSettings();

@@ -434,19 +434,17 @@ async def mark_contact_read(contact_id: str, payload: dict = Depends(verify_jwt_
 
 @api_router.get("/settings")
 async def get_settings():
-    data = load_db()
+    # Simple read-only — never auto-creates to avoid JSONBin write failures crashing this endpoint
+    try:
+        data = load_db()
+    except Exception as e:
+        logger.error(f"Settings load failed: {e}")
+        return {"tournament_name": "GameArenaX Tournament", "tournament_date": "TBD", "max_slots": 50, "id": None}
     t = next((t for t in data["tournaments"] if t.get("is_active")), None)
     if not t:
-        if not data["tournaments"]:
-            doc = Tournament(name="Free Fire Tournament", date="2026-12-31T23:59", max_slots=50, is_active=True).model_dump()
-            doc['created_at'] = doc['created_at'].isoformat()
-            async with data_lock:
-                data = load_db()
-                data["tournaments"].append(doc)
-                save_db(data)
-            t = doc
-        else:
-            return {"tournament_name": "Free Fire Tournament", "tournament_date": "TBD", "max_slots": 50, "id": None}
+        t = data["tournaments"][0] if data["tournaments"] else None
+    if not t:
+        return {"tournament_name": "GameArenaX Tournament", "tournament_date": "TBD", "max_slots": 50, "id": None}
     return {"tournament_name": t["name"], "tournament_date": t["date"], "max_slots": t["max_slots"], "id": t["id"]}
 
 @api_router.post("/tournaments", response_model=Tournament)
