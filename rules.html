@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Rules - GameArenaX</title>
+    <meta name="description"
+        content="Official GameArenaX Free Fire Tournament rules - Registration, Payment, Gameplay, and Prize Distribution guidelines.">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&family=Rajdhani:wght@500;600;700&family=Chakra+Petch:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="tailwind.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .rule-card {
+            background: rgba(10, 10, 12, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+
+        .rule-card:hover {
+            border-color: rgba(255, 215, 0, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(255, 215, 0, 0.08);
+        }
+
+        .rule-number {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05));
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+        }
+
+        .icon-box {
+            background: rgba(255, 215, 0, 0.08);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .rule-item::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #FFD700;
+            border-radius: 50%;
+            margin-right: 10px;
+            flex-shrink: 0;
+            margin-top: 7px;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-[#050505] text-white py-12 px-4 grain">
+    <div class="max-w-4xl mx-auto relative z-10">
+
+        <!-- Back -->
+        <a href="index.html"
+            class="font-rajdhani flex items-center gap-2 text-[#A1A1AA] hover:text-[#FFD700] transition-colors mb-10 uppercase tracking-widest font-bold text-sm">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i> Back to Home
+        </a>
+
+        <!-- Header -->
+        <div class="text-center mb-14">
+            <div
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#FFD700]/30 bg-[#FFD700]/5 mb-6">
+                <i data-lucide="shield-check" class="w-4 h-4 text-[#FFD700]"></i>
+                <span class="text-xs font-bold uppercase tracking-widest text-[#FFD700] font-rajdhani">Official
+                    Rulebook</span>
+            </div>
+            <h1 class="font-rajdhani font-bold text-5xl sm:text-6xl uppercase tracking-wide mb-4">
+                <span class="text-[#FFD700]">GameArenaX</span> Rules
+            </h1>
+            <p class="text-[#A1A1AA] font-sans max-w-xl mx-auto">Read all rules carefully before registering. Violation
+                of any rule may lead to disqualification or permanent ban.</p>
+            <div class="w-24 h-0.5 bg-gradient-to-r from-transparent via-[#FFD700] to-transparent mx-auto mt-6"></div>
+        </div>
+
+        <!-- Rules Grid -->
+        <div class="space-y-5">
+
+            <!-- 1. Registration -->
+            <div class="rule-card rounded-2xl p-6 sm:p-8">
+                <div class="flex items-start gap-5">
+                    <div
+                        class="rule-number w-12 h-12 rounded-xl flex items-center justify-center text-[#FFD700] text-xl font-bold shrink-0">
+                        01</div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="icon-box w-9 h-9 rounded-lg flex items-center justify-center">
+                                <i data-lucide="user-check" class="w-5 h-5 text-[#FFD700]"></i>
+                            </div>
+                            <h2 class="font-rajdhani font-bold text-2xl uppercase tracking-wider text-white">
+                                Registration Rules</h2>
+                        </div>
+                        <ul class="space-y-2 font-sans text-[#A1A1AA]">
+                            <li class="flex items-start rule-item">Players must register before the match start time.
+                            </li>
+                            <li class="flex items-start rule-item">Entry fee must be paid to confirm registration.</li>
+                            <li class="flex items-start rule-item">Players must provide their correct in-game ID during
+                                registration.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Payment -->
+            <div class="rule-card rounded-2xl p-6 sm:p-8">
+                <div class="flex items-start gap-5">
+                    <div
+                        class="rule-number w-12 h-12 rounded-xl flex items-center justify-center text-[#FFD700] text-xl font-bold shrink-0">
+                        02</div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="icon-box w-9 h-9 rounded-lg flex items-center justify-center">
+                                <i data-lucide="credit-card" class="w-5 h-5 text-[#FFD700]"></i>
+                            </div>
+                            <h2 class="font-rajdhani font-bold text-2xl uppercase tracking-wider text-white">Payment
+                                Rules</h2>
+                        </div>
+                        <ul class="space-y-2 font-sans text-[#A1A1AA]">
+                            <li class="flex items-start rule-item">Entry fee is non-refundable after successful
+                                registration.</li>
+                            <li class="flex items-start rule-item">Payment screenshot must be clear and valid.</li>
+                            <li class="flex items-start rule-item text-red-400">Fake payment proofs will result in <span
+                                    class="font-bold ml-1">permanent disqualification.</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Match Timing -->
+            <div class="rule-card rounded-2xl p-6 sm:p-8">
+                <div class="flex items-start gap-5">
+                    <div
+                        class="rule-number w-12 h-12 rounded-xl flex items-center justify-center text-[#FFD700] text-xl font-bold shrink-0">
+                        03</div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="icon-box w-9 h-9 rounded-lg flex items-center justify-center">
+                                <i data-lucide="clock" class="w-5 h-5 text-[#FFD700]"></i>
+                            </div>
+                            <h2 class="font-rajdhani font-bold text-2xl uppercase tracking-wider text-white">Match
+                                Timing Rules</h2>
+                        </div>
+                        <ul class="space-y-2 font-sans text-[#A1A1AA]">
+                            <li class="flex items-start rule-item">All matches will start exactly at the scheduled time.
+                            </li>
+                            <li class="flex items-start rule-item">Players must join the room at least <span
+                                    class="text-[#FFD700] font-bold mx-1">15 minutes</span> before the match start time.
+                            </li>
+                            <li class="flex items-start rule-item">No delay will be made for late players.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Gameplay -->
+            <div class="rule-card rounded-2xl p-6 sm:p-8 border-red-500/20">
+                <div class="flex items-start gap-5">
+                    <div
+                        class="rule-number w-12 h-12 rounded-xl flex items-center justify-center text-[#FFD700] text-xl font-bold shrink-0">
+                        04</div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="icon-box w-9 h-9 rounded-lg flex items-center justify-center">
+                                <i data-lucide="swords" class="w-5 h-5 text-[#FFD700]"></i>
+                            </div>
+                            <h2 class="font-rajdhani font-bold text-2xl uppercase tracking-wider text-white">Gameplay
+                                Rules</h2>
+                        </div>
+                        <ul class="space-y-2 font-sans text-[#A1A1AA]">
+                            <li class="flex items-start rule-item text-red-400 font-bold">Hacks, cheats, or modded
+                                applications are <span class="ml-1">strictly prohibited.</span></li>
+                            <li class="flex items-start rule-item">Any player found using unfair advantages will be
+                                <span class="text-red-400 font-bold mx-1">immediately banned</span> from the tournament.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Results -->
+            <div class="rule-card rounded-2xl p-6 sm:p-8">
+                <div class="flex items-start gap-5">
+                    <div
+                        class="rule-number w-12 h-12 rounded-xl flex items-center justify-center text-[#FFD700] text-xl font-bold shrink-0">
+                        05</div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="icon-box w-9 h-9 rounded-lg flex items-center justify-center">
+                                <i data-lucide="trophy" class="w-5 h-5 text-[#FFD700]"></i>
+                            </div>
+                            <h2 class="font-rajdhani font-bold text-2xl uppercase tracking-wider text-white">Result
+                                Rules</h2>
+                        </div>
+                        <ul class="space-y-2 font-sans text-[#A1A1AA]">
+                            <li class="flex items-start rule-item">Winners will be decided based on kills and final
+                                match placement.</li>
+                            <li class="flex items-start rule-item">In case of disputes, the admin decision will be
+                                final.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Prize Distribution -->
+            <div class="rule-card rounded-2xl p-6 sm:p-8">
+                <div class="flex items-start gap-5">
+                    <div
+                        class="rule-number w-12 h-12 rounded-xl flex items-center justify-center text-[#FFD700] text-xl font-bold shrink-0">
+                        06</div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="icon-box w-9 h-9 rounded-lg flex items-center justify-center">
+                                <i data-lucide="indian-rupee" class="w-5 h-5 text-[#FFD700]"></i>
+                            </div>
+                            <h2 class="font-rajdhani font-bold text-2xl uppercase tracking-wider text-white">Prize
+                                Distribution Rules</h2>
+                        </div>
+                        <ul class="space-y-2 font-sans text-[#A1A1AA]">
+                            <li class="flex items-start rule-item">Prize money will be sent within <span
+                                    class="text-[#FFD700] font-bold mx-1">24–48 hours</span> after result verification.
+                            </li>
+                            <li class="flex items-start rule-item">Winners must provide correct payment details.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. Behaviour -->
+            <div class="rule-card rounded-2xl p-6 sm:p-8">
+                <div class="flex items-start gap-5">
+                    <div
+                        class="rule-number w-12 h-12 rounded-xl flex items-center justify-center text-[#FFD700] text-xl font-bold shrink-0">
+                        07</div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="icon-box w-9 h-9 rounded-lg flex items-center justify-center">
+                                <i data-lucide="hand" class="w-5 h-5 text-[#FFD700]"></i>
+                            </div>
+                            <h2 class="font-rajdhani font-bold text-2xl uppercase tracking-wider text-white">Behaviour
+                                Rules</h2>
+                        </div>
+                        <ul class="space-y-2 font-sans text-[#A1A1AA]">
+                            <li class="flex items-start rule-item">Abusive language, harassment, or toxic behaviour
+                                towards players or admins is not allowed.</li>
+                            <li class="flex items-start rule-item">Any attempt to scam or exploit the system will lead
+                                to a <span class="text-red-400 font-bold ml-1">permanent ban.</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. Technical Issues -->
+            <div class="rule-card rounded-2xl p-6 sm:p-8">
+                <div class="flex items-start gap-5">
+                    <div
+                        class="rule-number w-12 h-12 rounded-xl flex items-center justify-center text-[#FFD700] text-xl font-bold shrink-0">
+                        08</div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="icon-box w-9 h-9 rounded-lg flex items-center justify-center">
+                                <i data-lucide="wifi-off" class="w-5 h-5 text-[#FFD700]"></i>
+                            </div>
+                            <h2 class="font-rajdhani font-bold text-2xl uppercase tracking-wider text-white">Technical
+                                Issues</h2>
+                        </div>
+                        <ul class="space-y-2 font-sans text-[#A1A1AA]">
+                            <li class="flex items-start rule-item">The organizers are not responsible for internet
+                                issues, device lag, or game crashes.</li>
+                            <li class="flex items-start rule-item">Players must ensure they have a stable internet
+                                connection before joining the match.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 9. Account Responsibility -->
+            <div class="rule-card rounded-2xl p-6 sm:p-8">
+                <div class="flex items-start gap-5">
+                    <div
+                        class="rule-number w-12 h-12 rounded-xl flex items-center justify-center text-[#FFD700] text-xl font-bold shrink-0">
+                        09</div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="icon-box w-9 h-9 rounded-lg flex items-center justify-center">
+                                <i data-lucide="lock" class="w-5 h-5 text-[#FFD700]"></i>
+                            </div>
+                            <h2 class="font-rajdhani font-bold text-2xl uppercase tracking-wider text-white">Account
+                                Responsibility</h2>
+                        </div>
+                        <ul class="space-y-2 font-sans text-[#A1A1AA]">
+                            <li class="flex items-start rule-item">Players are responsible for their own game account
+                                security and login details.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 10. Admin Authority -->
+            <div class="rule-card rounded-2xl p-6 sm:p-8 border-[#FFD700]/20">
+                <div class="flex items-start gap-5">
+                    <div
+                        class="rule-number w-12 h-12 rounded-xl flex items-center justify-center text-[#FFD700] text-xl font-bold shrink-0">
+                        10</div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="icon-box w-9 h-9 rounded-lg flex items-center justify-center">
+                                <i data-lucide="shield" class="w-5 h-5 text-[#FFD700]"></i>
+                            </div>
+                            <h2 class="font-rajdhani font-bold text-2xl uppercase tracking-wider text-white">Admin
+                                Authority</h2>
+                        </div>
+                        <ul class="space-y-2 font-sans text-[#A1A1AA]">
+                            <li class="flex items-start rule-item">The admin reserves the right to change rules, cancel
+                                matches, or take decisions in special situations.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- CTA -->
+        <div class="mt-14 text-center">
+            <p class="text-[#A1A1AA] font-sans mb-6">By registering, you agree to all of the above rules.</p>
+            <a href="tournament.html"
+                class="inline-block px-10 py-4 bg-[#FFD700] text-black font-rajdhani font-bold text-xl uppercase tracking-widest rounded transition-all hover:bg-white hover:scale-105 shadow-[0_0_30px_rgba(255,215,0,0.3)]">
+                Enter Tournament
+            </a>
+        </div>
+
+    </div>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
