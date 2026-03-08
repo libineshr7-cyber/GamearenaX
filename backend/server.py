@@ -152,6 +152,183 @@ def send_registration_email(player_email: str, player_name: str, tournament_name
     except Exception as e:
         logger.error(f"Email failed: {e}")
 
+def send_confirmation_email_with_rules(player_email: str, player_name: str, tournament_name: str, slot_number: int):
+    smtp_user = os.environ.get('SMTP_USER')
+    smtp_pass = os.environ.get('SMTP_PASS')
+    if not smtp_user or not smtp_pass:
+        logger.warning("SMTP not configured. Skipping confirmation email with rules.")
+        return
+    try:
+        msg = EmailMessage()
+        msg['Subject'] = f"✅ Registration Confirmed - {tournament_name} | Slot #{slot_number}"
+        msg['From'] = smtp_user
+        msg['To'] = player_email
+
+        plain_text = f"""
+Hello {player_name},
+
+🎮 Your registration for {tournament_name} has been CONFIRMED!
+
+SLOT NUMBER: #{slot_number}
+TOURNAMENT: {tournament_name}
+ENTRY FEE: ₹20/slot
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GAMEARENAX TOURNAMENT RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. REGISTRATION RULES
+   - Players must register before the match start time.
+   - Entry fee must be paid to confirm registration.
+   - Players must provide their correct in-game ID during registration.
+
+2. PAYMENT RULES
+   - Entry fee is non-refundable after successful registration.
+   - Payment screenshot must be clear and valid.
+   - Fake payment proofs will result in permanent disqualification.
+
+3. MATCH TIMING RULES
+   - All matches will start exactly at the scheduled time.
+   - Players must join the room at least 15 minutes before the match start time.
+   - No delay will be made for late players.
+
+4. GAMEPLAY RULES
+   - Hacks, cheats, or modded applications are strictly prohibited.
+   - Any player found using unfair advantages will be immediately banned.
+
+5. RESULT RULES
+   - Winners will be decided based on kills and final match placement.
+   - In case of disputes, the admin decision will be final.
+
+6. PRIZE DISTRIBUTION RULES
+   - Prize money will be sent within 24-48 hours after result verification.
+   - Winners must provide correct payment details.
+   - Prize: ₹120 (1st) | ₹60 (2nd) | ₹30 (3rd) | ₹10 per kill
+
+7. BEHAVIOUR RULES
+   - Abusive language, harassment, or toxic behaviour is not allowed.
+   - Any attempt to scam or exploit the system will lead to a permanent ban.
+
+8. TECHNICAL ISSUES
+   - Organizers are not responsible for internet issues, device lag, or game crashes.
+   - Players must ensure a stable internet connection before joining.
+
+9. ACCOUNT RESPONSIBILITY
+   - Players are responsible for their own game account security.
+
+10. ADMIN AUTHORITY
+    - The admin reserves the right to change rules, cancel matches, or take decisions in special situations.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Good luck, {player_name}! See you on the battlefield! 🔥
+GameArenaX Team
+"""
+
+        html_content = f"""
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:'Segoe UI',Arial,sans-serif;color:#ffffff;">
+  <div style="max-width:600px;margin:0 auto;background:#111111;border:1px solid #1f1f1f;border-radius:12px;overflow:hidden;">
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#1a1a00,#2a2000);padding:32px 32px 24px;border-bottom:2px solid #FFD700;text-align:center;">
+      <div style="font-size:13px;font-weight:700;letter-spacing:4px;color:#FFD700;text-transform:uppercase;margin-bottom:8px;">GameArenaX</div>
+      <h1 style="margin:0;font-size:28px;font-weight:800;color:#FFD700;text-transform:uppercase;letter-spacing:2px;">Registration Confirmed!</h1>
+      <p style="margin:8px 0 0;color:#a0a0a0;font-size:14px;">You're officially in the arena.</p>
+    </div>
+
+    <!-- Slot Card -->
+    <div style="padding:28px 32px;">
+      <p style="color:#d0d0d0;font-size:15px;margin:0 0 20px;">Hello <strong style="color:#ffffff;">{player_name}</strong>,</p>
+      <p style="color:#a0a0a0;font-size:14px;margin:0 0 24px;">Your registration has been confirmed. Here are your match details:</p>
+
+      <div style="background:#1a1a1a;border:1px solid #FFD700;border-radius:10px;padding:20px;margin-bottom:20px;text-align:center;">
+        <div style="font-size:13px;color:#a0a0a0;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;">Your Slot Number</div>
+        <div style="font-size:52px;font-weight:800;color:#FFD700;line-height:1;">#{slot_number}</div>
+      </div>
+
+      <div style="background:#161616;border-radius:10px;padding:16px 20px;margin-bottom:24px;">
+        <table style="width:100%;border-collapse:collapse;">
+          <tr>
+            <td style="padding:8px 0;color:#808080;font-size:13px;text-transform:uppercase;letter-spacing:1px;">Tournament</td>
+            <td style="padding:8px 0;color:#ffffff;font-weight:600;text-align:right;">{tournament_name}</td>
+          </tr>
+          <tr style="border-top:1px solid #222;">
+            <td style="padding:8px 0;color:#808080;font-size:13px;text-transform:uppercase;letter-spacing:1px;">Entry Fee</td>
+            <td style="padding:8px 0;color:#00FFFF;font-weight:600;text-align:right;">&#8377;20 / slot</td>
+          </tr>
+          <tr style="border-top:1px solid #222;">
+            <td style="padding:8px 0;color:#808080;font-size:13px;text-transform:uppercase;letter-spacing:1px;">1st Prize</td>
+            <td style="padding:8px 0;color:#FFD700;font-weight:700;text-align:right;">&#8377;120</td>
+          </tr>
+          <tr style="border-top:1px solid #222;">
+            <td style="padding:8px 0;color:#808080;font-size:13px;text-transform:uppercase;letter-spacing:1px;">Per Kill Bonus</td>
+            <td style="padding:8px 0;color:#ff6b6b;font-weight:600;text-align:right;">&#8377;10</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Important Note -->
+      <div style="background:#1a0000;border:1px solid #ff4444;border-radius:8px;padding:12px 16px;margin-bottom:24px;">
+        <div style="font-size:12px;font-weight:700;color:#ff4444;text-transform:uppercase;letter-spacing:2px;margin-bottom:4px;">⚠️ Important</div>
+        <p style="margin:0;font-size:13px;color:#ffaaaa;">Join the match room at least <strong>15 minutes</strong> before start time. Late players will not be accommodated.</p>
+      </div>
+    </div>
+
+    <!-- Rules -->
+    <div style="padding:0 32px 28px;">
+      <div style="border-top:1px solid #222;padding-top:24px;">
+        <h2 style="margin:0 0 16px;font-size:16px;font-weight:700;color:#FFD700;text-transform:uppercase;letter-spacing:2px;">Tournament Rules</h2>
+
+        {"".join([f'<div style="margin-bottom:12px;"><div style="font-size:11px;font-weight:700;color:#FFD700;text-transform:uppercase;letter-spacing:2px;margin-bottom:4px;">{title}</div><div style="font-size:13px;color:#a0a0a0;line-height:1.6;">{body}</div></div>' for title, body in [
+            ("1. Registration", "Register before match start time. Provide correct in-game ID. Entry fee required to confirm slot."),
+            ("2. Payment", "Entry fee is non-refundable. Payment screenshot must be valid. Fake proofs = permanent disqualification."),
+            ("3. Match Timing", "Match starts exactly on schedule. Join the room 15 minutes early. No delays for late players."),
+            ("4. Gameplay", "Hacks, cheats, and mods are strictly banned. Unfair play = immediate ban."),
+            ("5. Results &amp; Disputes", "Winners decided by kills + placement. Admin decisions are final."),
+            ("6. Prize Distribution", "Prize sent within 24–48 hrs of result. Winners must share correct payment details."),
+            ("7. Behaviour", "No abuse, harassment, or toxicity. Scamming or exploiting = permanent ban."),
+            ("8. Technical", "Organizers are not liable for lag or crashes. Ensure stable internet before joining."),
+            ("9. Account", "You are responsible for your own account security."),
+            ("10. Admin Authority", "Admin can change rules, cancel matches, or make final decisions at any time."),
+        ]])}
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="background:#0d0d0d;padding:20px 32px;border-top:1px solid #1f1f1f;text-align:center;">
+      <p style="margin:0 0 4px;font-size:16px;font-weight:700;color:#FFD700;">Good Luck, {player_name}! 🔥</p>
+      <p style="margin:0;font-size:12px;color:#555;">GameArenaX Team &bull; Free Fire Tournaments</p>
+    </div>
+  </div>
+</body>
+</html>
+"""
+        msg.set_content(plain_text)
+        msg.add_alternative(html_content, subtype='html')
+
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            server.login(smtp_user, smtp_pass)
+            server.send_message(msg)
+        logger.info(f"Confirmation email with rules sent to {player_email}")
+    except Exception as e:
+        logger.error(f"Confirmation email failed: {e}")
+        raise
+
+@api_router.post("/registrations/{registration_id}/send-mail")
+async def send_registration_confirmation(registration_id: str, background_tasks: BackgroundTasks, payload: dict = Depends(verify_jwt_token)):
+    reg = next((r for r in db["registrations"] if r["id"] == registration_id), None)
+    if not reg:
+        raise HTTPException(status_code=404, detail="Registration not found")
+    t = next((t for t in db["tournaments"] if t["id"] == reg.get("tournament_id")), None)
+    tournament_name = t["name"] if t else "GameArenaX Tournament"
+    background_tasks.add_task(
+        send_confirmation_email_with_rules,
+        reg["email"], reg["player_name"], tournament_name, reg.get("slot_number", "?")
+    )
+    return {"message": f"Confirmation email queued for {reg['email']}"}
+
 @api_router.get("/")
 async def root(): return {"message": "Free Fire API"}
 

@@ -118,7 +118,8 @@
                 <div class="space-y-4 font-chakra text-lg">
                     <div class="flex justify-between items-center bg-black/40 p-4 border border-white/10 rounded">
                         <span class="text-[#A1A1AA]">Entry Fee</span>
-                        <span class="font-bold text-white">&#8377;20 <span class="text-xs text-[#A1A1AA] font-normal">per
+                        <span class="font-bold text-white">&#8377;20 <span
+                                class="text-xs text-[#A1A1AA] font-normal">per
                                 player</span></span>
                     </div>
                     <div
@@ -340,6 +341,7 @@
                     </td>
                     <td class="p-4">
                         ${r.status == 'pending' ? `<button onclick="update('${r.id}','status','approved')" class="text-xs px-3 py-1 bg-green-500/20 text-green-400 hover:bg-green-500/40 rounded mr-2">APPROVE</button><button onclick="update('${r.id}','status','rejected')" class="text-xs px-3 py-1 bg-red-500/20 text-red-400 hover:bg-red-500/40 rounded">REJECT</button>` : `<button onclick="update('${r.id}','status','pending')" class="text-xs px-3 py-1 bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/40 rounded">RESET</button>`}
+                        <button onclick="sendMail('${r.id}','${r.player_name}')" class="text-xs px-3 py-1 bg-blue-500/20 text-blue-400 hover:bg-blue-500/40 rounded mt-1 flex items-center gap-1"><i data-lucide="mail" class="w-3 h-3"></i> Send Mail</button>
                     </td>
                 </tr>
             `).join('');
@@ -402,6 +404,33 @@
             document.getElementById('create-modal').classList.add('hidden');
             init();
         }
+
+        window.sendMail = async (id, name) => {
+            const btn = event.currentTarget;
+            const origText = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="loader" class="w-3 h-3 inline animate-spin"></i> Sending...';
+            btn.disabled = true;
+            try {
+                const res = await fetch(`${API}/registrations/${id}/send-mail`, {
+                    method: 'POST',
+                    headers: { Authorization: 'Bearer ' + t }
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    btn.innerHTML = '<i data-lucide="check" class="w-3 h-3 inline"></i> Sent!';
+                    btn.classList.replace('text-blue-400', 'text-green-400');
+                    btn.classList.replace('bg-blue-500/20', 'bg-green-500/20');
+                    setTimeout(() => { btn.innerHTML = origText; btn.classList.replace('text-green-400', 'text-blue-400'); btn.classList.replace('bg-green-500/20', 'bg-blue-500/20'); btn.disabled = false; lucide.createIcons(); }, 3000);
+                } else {
+                    alert(data.detail || 'Failed to send email. Check SMTP config.');
+                    btn.innerHTML = origText; btn.disabled = false;
+                }
+            } catch (e) {
+                alert('Network error: ' + e.message);
+                btn.innerHTML = origText; btn.disabled = false;
+            }
+            lucide.createIcons();
+        };
 
         init();
         setTimeout(() => lucide.createIcons(), 500);
