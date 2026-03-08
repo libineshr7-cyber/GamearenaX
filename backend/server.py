@@ -55,8 +55,11 @@ def _gs_load() -> dict:
         data.setdefault("registrations", [])
         data.setdefault("contacts", [])
         return data
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Google Sheet read failed: {e}")
+        # Return empty data instead of crashing on read
         return {"tournaments": [], "registrations": [], "contacts": []}
 
 def _gs_save(data: dict):
@@ -489,15 +492,27 @@ async def create_registration(input: RegistrationCreate, background_tasks: Backg
         if not t:
             raise HTTPException(status_code=400, detail="Tournament not found or no active tournament.")
 
-        regs = [r for r in data["registrations"] if r.get("tournament_id") == t["id"]]
-        if len(regs) >= t.get("max_slots", 50):
+        regs = [r for r in data["registrations"] if str(r.get("tournament_id")) == str(t["id"])]
+        
+        try:
+            m_slots = int(t.get("max_slots", 50))
+        except:
+            m_slots = 50
+            
+        if len(regs) >= m_slots:
             raise HTTPException(status_code=400, detail="Tournament full.")
 
-        slot_existing = next(
-            (r for r in regs if r.get("slot_number") == input.slot_number and r.get("status") in ["pending", "approved"]),
-            None
-        )
-        if slot_existing:
+        target_slot = int(input.slot_number)
+        slot_occupied = False
+        for r in regs:
+            try:
+                if int(r.get("slot_number")) == target_slot and r.get("status") in ["pending", "approved"]:
+                    slot_occupied = True
+                    break
+            except:
+                continue
+                
+        if slot_occupied:
             raise HTTPException(status_code=400, detail="Slot occupied.")
 
         registration_dict = input.model_dump()
@@ -554,23 +569,7 @@ async def send_registration_confirmation(registration_id: str, payload: dict = D
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Email failed: {str(e)}")
 
-@api_router.post("/registrations/{registration_id}/send-sms")
-async def send_registration_sms(registration_id: str, background_tasks: BackgroundTasks, payload: dict = Depends(verify_jwt_token)):
-    data = load_db()
-    reg = next((r for r in data["registrations"] if r["id"] == registration_id), None)
-    if not reg:
-        raise HTTPException(status_code=404, detail="Registration not found")
-    phone = reg.get("phone", "")
-    if not phone:
-        raise HTTPException(status_code=400, detail="No phone number found for this registration.")
-    t = next((t for t in data["tournaments"] if t["id"] == reg.get("tournament_id")), None)
-    tournament_name = t["name"] if t else "GameArenaX Tournament"
-    try:
-        send_sms_fast2sms(phone, reg["player_name"], tournament_name, reg.get("slot_number", "?"))
-    except Exception as e:
-        logger.error(f"SMS failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-    return {"message": f"SMS sent successfully to {phone}"}
+
 
 @api_router.get("/public/leaderboard")
 async def get_leaderboard(tournament_id: Optional[str] = None):
@@ -614,13 +613,25 @@ async def get_slots(tournament_id: Optional[str] = None):
             t = doc
         else:
             return []
-    max_slots = t.get("max_slots", 50)
-    regs = [r for r in data["registrations"] if r.get("tournament_id") == t["id"] and r.get("status") in ["pending", "approved"]]
-    occupied = {r.get("slot_number"): r for r in regs if "slot_number" in r}
+    try:
+        max_slots = int(t.get("max_slots", 50))
+    except:
+        max_slots = 50
+
+    regs = [r for r in data["registrations"] if str(r.get("tournament_id")) == str(t["id"]) and r.get("status") in ["pending", "approved"]]
+    
+    occupied = {}
+    for r in regs:
+        try:
+            s_num = int(r.get("slot_number"))
+            occupied[s_num] = r.get("status")
+        except:
+            continue
+            
     slots = []
     for i in range(1, max_slots + 1):
         if i in occupied:
-            slots.append({"slot_number": i, "status": occupied[i].get("status")})
+            slots.append({"slot_number": i, "status": occupied[i]})
         else:
             slots.append({"slot_number": i, "status": "available"})
     return slots
