@@ -318,17 +318,36 @@ GameArenaX Team
         raise
 
 @api_router.post("/registrations/{registration_id}/send-mail")
-async def send_registration_confirmation(registration_id: str, background_tasks: BackgroundTasks, payload: dict = Depends(verify_jwt_token)):
+async def send_registration_confirmation(registration_id: str, payload: dict = Depends(verify_jwt_token)):
     reg = next((r for r in db["registrations"] if r["id"] == registration_id), None)
     if not reg:
         raise HTTPException(status_code=404, detail="Registration not found")
+    
+    smtp_user = os.environ.get('SMTP_USER', '').strip()
+    smtp_pass = os.environ.get('SMTP_PASS', '').strip().replace(' ', '')
+    if not smtp_user or not smtp_pass:
+        raise HTTPException(
+            status_code=500, 
+            detail="Email not configured. Add SMTP_USER and SMTP_PASS in Render Environment Variables."
+        )
+    
     t = next((t for t in db["tournaments"] if t["id"] == reg.get("tournament_id")), None)
     tournament_name = t["name"] if t else "GameArenaX Tournament"
-    background_tasks.add_task(
-        send_confirmation_email_with_rules,
-        reg["email"], reg["player_name"], tournament_name, reg.get("slot_number", "?")
-    )
-    return {"message": f"Confirmation email queued for {reg['email']}"}
+    
+    try:
+        send_confirmation_email_with_rules(
+            reg["email"], reg["player_name"], tournament_name, reg.get("slot_number", "?")
+        )
+        return {"message": f"Email sent successfully to {reg['email']}"}
+    except smtplib.SMTPAuthenticationError:
+        raise HTTPException(
+            status_code=500,
+            detail="Gmail authentication failed. Make sure SMTP_PASS is a Gmail App Password (16 chars), NOT your regular Gmail password. Get one at: myaccount.google.com/apppasswords"
+        )
+    except smtplib.SMTPException as e:
+        raise HTTPException(status_code=500, detail=f"SMTP error: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Email failed: {str(e)}")
 
 def send_sms_fast2sms(phone: str, player_name: str, tournament_name: str, slot_number):
     api_key = os.environ.get('FAST2SMS_API_KEY')
