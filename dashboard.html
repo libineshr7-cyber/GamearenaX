@@ -74,14 +74,39 @@
                                 class="w-full bg-black border border-white/20 px-4 py-2 text-white font-chakra" />
                         </div>
                         <div><label class="font-chakra text-sm text-[#A1A1AA] block">MAX SLOTS</label>
-                            <input type="number" id="new-slots" value="50"
+                            <input type="number" id="new-slots" value="50" min="1" max="200"
                                 class="w-full bg-black border border-white/20 px-4 py-2 text-white font-chakra" />
                         </div>
-                        <div><label class="font-chakra text-sm text-[#A1A1AA] block">DATE & TIME</label>
-                            <input type="datetime-local" id="new-date"
+                        <div><label class="font-chakra text-sm text-[#A1A1AA] block">DATE</label>
+                            <input type="date" id="new-date"
                                 class="w-full bg-black border border-white/20 px-4 py-2 text-white font-chakra" />
                         </div>
-                        <button onclick="submitCreate()"
+                        <div><label class="font-chakra text-sm text-[#A1A1AA] block">TIME</label>
+                            <select id="new-time"
+                                class="w-full bg-black border border-white/20 px-4 py-2 text-white font-chakra">
+                                <option value="06:00">6:00 AM</option>
+                                <option value="07:00">7:00 AM</option>
+                                <option value="08:00">8:00 AM</option>
+                                <option value="09:00">9:00 AM</option>
+                                <option value="10:00">10:00 AM</option>
+                                <option value="11:00">11:00 AM</option>
+                                <option value="12:00">12:00 PM (Noon)</option>
+                                <option value="13:00">1:00 PM</option>
+                                <option value="14:00">2:00 PM</option>
+                                <option value="15:00">3:00 PM</option>
+                                <option value="16:00">4:00 PM</option>
+                                <option value="17:00">5:00 PM</option>
+                                <option value="18:00">6:00 PM</option>
+                                <option value="19:00" selected>7:00 PM</option>
+                                <option value="20:00">8:00 PM</option>
+                                <option value="21:00">9:00 PM</option>
+                                <option value="22:00">10:00 PM</option>
+                            </select>
+                        </div>
+                        <div id="create-error"
+                            class="hidden text-red-400 text-sm font-chakra bg-red-500/10 border border-red-500/30 rounded px-3 py-2">
+                        </div>
+                        <button onclick="submitCreate()" id="create-btn"
                             class="w-full font-rajdhani font-bold px-8 py-3 bg-[#00FFFF] text-black hover:bg-[#00CCCC] tactical-clip mt-2">CREATE
                             TOURNAMENT</button>
                     </div>
@@ -394,17 +419,54 @@
         }
 
         window.submitCreate = async () => {
-            const name = document.getElementById('new-name').value;
+            const name = document.getElementById('new-name').value.trim();
             const slots = parseInt(document.getElementById('new-slots').value);
-            const date = document.getElementById('new-date').value;
-            if (!name || !slots || !date) return alert("Fill all fields");
-            await fetch(`${API}/tournaments`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + t },
-                body: JSON.stringify({ name, max_slots: slots, date: date })
-            });
-            alert("Created successfully!");
-            document.getElementById('create-modal').classList.add('hidden');
-            init();
+            const date = document.getElementById('new-date').value;   // YYYY-MM-DD
+            const time = document.getElementById('new-time').value;   // HH:MM
+            const errBox = document.getElementById('create-error');
+            const btn = document.getElementById('create-btn');
+
+            errBox.classList.add('hidden');
+
+            if (!name) { errBox.textContent = 'Please enter a tournament name.'; errBox.classList.remove('hidden'); return; }
+            if (!slots || slots < 1) { errBox.textContent = 'Please enter valid max slots.'; errBox.classList.remove('hidden'); return; }
+            if (!date) { errBox.textContent = 'Please select a date.'; errBox.classList.remove('hidden'); return; }
+
+            // Build a clean ISO-style date string: "YYYY-MM-DDTHH:MM"
+            const dateStr = `${date}T${time}`;
+
+            btn.textContent = 'Creating...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API}/tournaments`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + t },
+                    body: JSON.stringify({ name, max_slots: slots, date: dateStr })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    errBox.textContent = `Server error: ${data.detail || res.status}`;
+                    errBox.classList.remove('hidden');
+                    btn.textContent = 'CREATE TOURNAMENT';
+                    btn.disabled = false;
+                    return;
+                }
+                alert(`✅ Tournament "${name}" created successfully!`);
+                document.getElementById('create-modal').classList.add('hidden');
+                // Reset form
+                document.getElementById('new-name').value = '';
+                document.getElementById('new-slots').value = '50';
+                document.getElementById('new-date').value = '';
+                btn.textContent = 'CREATE TOURNAMENT';
+                btn.disabled = false;
+                init();
+            } catch (e) {
+                errBox.textContent = `Network error: ${e.message}`;
+                errBox.classList.remove('hidden');
+                btn.textContent = 'CREATE TOURNAMENT';
+                btn.disabled = false;
+            }
         }
 
         window.sendMail = (email, playerName, slotNumber, tournamentName) => {
