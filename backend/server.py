@@ -26,80 +26,49 @@ logger = logging.getLogger(__name__)
 # ─────────────────────────────────────────────────────────────────────────────
 #  STORAGE SETUP
 #  Priority:
-#    1. JSONBin.io  (cloud, persistent, free) — set JSONBIN_API_KEY + JSONBIN_BIN_ID
-#    2. Local data.json  (fallback for local development)
-#
-#  How to set up JSONBin (takes 2 minutes):
-#    a) Go to https://jsonbin.io and create a free account
-#    b) Click "CREATE BIN", paste:  {"tournaments":[],"registrations":[],"contacts":[]}
-#    c) Copy the BIN ID from the URL
-#    d) Go to Account → API Keys, create a key
-#    e) Add JSONBIN_API_KEY and JSONBIN_BIN_ID to Render Environment Variables
+#    1. Google Sheets (Cloud Persistent) — Set GOOGLE_SHEET_URL (Web App URL)
+#    2. Local data.json (Fallback for local dev)
 # ─────────────────────────────────────────────────────────────────────────────
 
-JSONBIN_API_KEY = os.environ.get('JSONBIN_API_KEY', '').strip()
-JSONBIN_BIN_ID  = os.environ.get('JSONBIN_BIN_ID', '').strip()
-USE_JSONBIN     = bool(JSONBIN_API_KEY and JSONBIN_BIN_ID)
+GOOGLE_SHEET_URL = os.environ.get('GOOGLE_SHEET_URL', '').strip()
+USE_GOOGLE_SHEETS = bool(GOOGLE_SHEET_URL)
+DATA_FILE  = ROOT_DIR / "data.json"
+DATA_RETENTION_DAYS = 60
 
 DATA_RETENTION_DAYS = 60   # registrations older than 60 days are auto-removed
 
-# Local JSON fallback
-DATA_FILE  = ROOT_DIR / "data.json"
 data_lock  = asyncio.Lock()
-_local_db_cache: Optional[dict] = None   # in-memory cache for local mode
+_local_db_cache: Optional[dict] = None
 
-# ── JSONBin helpers ───────────────────────────────────────────────────────────
+# ── Google Sheets helpers ───────────────────────────────────────────────────
 
-_JSONBIN_BASE  = "https://api.jsonbin.io/v3/b"
-_JB_HEADERS_R  = {"X-Master-Key": JSONBIN_API_KEY, "X-Bin-Meta": "false"}
-_JB_HEADERS_W  = {"X-Master-Key": JSONBIN_API_KEY, "Content-Type": "application/json"}
-
-def _jb_load() -> dict:
-    """Read the entire database from JSONBin."""
+def _gs_load() -> dict:
+    """Read data from Google Sheets via Web App."""
+    if not GOOGLE_SHEET_URL:
+        raise Exception("GOOGLE_SHEET_URL missing from environment.")
     try:
-        r = http_requests.get(
-            f"{_JSONBIN_BASE}/{JSONBIN_BIN_ID}",
-            headers={"X-Master-Key": JSONBIN_API_KEY, "X-Bin-Meta": "false"},
-            timeout=10
-        )
-        if r.status_code == 401:
-            raise HTTPException(status_code=401, detail="JSONBin API Key is unauthorized. Check Render Env Vars.")
-        if r.status_code == 404:
-            raise HTTPException(status_code=404, detail="JSONBin Bin ID not found. Check Render Env Vars.")
+        r = http_requests.get(GOOGLE_SHEET_URL, timeout=15)
         r.raise_for_status()
         data = r.json()
-        if "record" in data: data = data["record"]
-        
-        # Ensure all keys exist
-        if not isinstance(data, dict): data = {}
+        # Fallback empty structures
         data.setdefault("tournaments", [])
         data.setdefault("registrations", [])
         data.setdefault("contacts", [])
         return data
-    except HTTPException:
-        raise
     except Exception as e:
-        logger.error(f"JSONBin read failed: {e}")
-        # Return empty data instead of crashing on read
+        logger.error(f"Google Sheet read failed: {e}")
         return {"tournaments": [], "registrations": [], "contacts": []}
 
-def _jb_save(data: dict):
-    """Write the entire database back to JSONBin."""
+def _gs_save(data: dict):
+    """Write data to Google Sheets via Web App."""
+    if not GOOGLE_SHEET_URL:
+        raise Exception("GOOGLE_SHEET_URL missing from environment.")
     try:
-        r = http_requests.put(
-            f"{_JSONBIN_BASE}/{JSONBIN_BIN_ID}",
-            headers={"X-Master-Key": JSONBIN_API_KEY, "Content-Type": "application/json"},
-            json=data,
-            timeout=15
-        )
-        if r.status_code == 401:
-            raise HTTPException(status_code=401, detail="JSONBin API Key is unauthorized. Check Render Env Vars.")
+        r = http_requests.post(GOOGLE_SHEET_URL, json=data, timeout=20)
         r.raise_for_status()
-    except HTTPException:
-        raise
     except Exception as e:
-        logger.error(f"JSONBin write failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Database write failed: {str(e)}")
+        logger.error(f"Google Sheet write failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Google Sheet write failed: {str(e)}")
 
 # ── Local JSON helpers ────────────────────────────────────────────────────────
 
@@ -130,13 +99,16 @@ def _local_save(data: dict):
 # ── Unified DB access ─────────────────────────────────────────────────────────
 
 def load_db() -> dict:
-    if USE_JSONBIN:
-        return _jb_load()
+    """Load database from Cloud (Google Sheets) or fallback to local JSON."""
+    if USE_GOOGLE_SHEETS:
+        return _gs_load()
     return _local_load()
 
 def save_db(data: dict):
-    if USE_JSONBIN:
-        _jb_save(data)
+    """Save database to Cloud (Google Sheets) and purge old data."""
+    data = _purge_old_registrations(data)
+    if USE_GOOGLE_SHEETS:
+        _gs_save(data)
     else:
         _local_save(data)
 
@@ -397,7 +369,7 @@ GameArenaX Team
 async def root():
     return {
         "message": "GameArenaX API",
-        "storage": "JSONBin.io (Persistent Cloud)" if USE_JSONBIN else "Local JSON (⚠️ data lost on restart)",
+        "storage": "Google Sheets (Cloud Persistent)" if USE_GOOGLE_SHEETS else "Local JSON (Ephemeral)",
         "data_retention_days": DATA_RETENTION_DAYS
     }
 
@@ -405,13 +377,11 @@ async def root():
 async def storage_status(payload: dict = Depends(verify_jwt_token)):
     data = load_db()
     return {
-        "storage_backend": "JSONBin.io (Cloud - Persistent)" if USE_JSONBIN else "Local JSON (NOT persistent on Render!)",
-        "is_persistent": USE_JSONBIN,
-        "jsonbin_configured": USE_JSONBIN,
-        "data_retention_days": DATA_RETENTION_DAYS,
+        "storage_backend": "Google Sheets" if USE_GOOGLE_SHEETS else "Local JSON",
+        "is_persistent": USE_GOOGLE_SHEETS,
+        "sheet_connected": USE_GOOGLE_SHEETS,
         "tournaments_count": len(data["tournaments"]),
         "registrations_count": len(data["registrations"]),
-        "contacts_count": len(data["contacts"]),
     }
 
 @api_router.post("/public/contact")
