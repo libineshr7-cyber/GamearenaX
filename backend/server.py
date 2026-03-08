@@ -15,6 +15,7 @@ import smtplib
 from email.message import EmailMessage
 import json
 import asyncio
+import requests as http_requests
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -328,6 +329,66 @@ async def send_registration_confirmation(registration_id: str, background_tasks:
         reg["email"], reg["player_name"], tournament_name, reg.get("slot_number", "?")
     )
     return {"message": f"Confirmation email queued for {reg['email']}"}
+
+def send_sms_fast2sms(phone: str, player_name: str, tournament_name: str, slot_number):
+    api_key = os.environ.get('FAST2SMS_API_KEY')
+    if not api_key:
+        logger.warning("FAST2SMS_API_KEY not configured. Skipping SMS.")
+        raise Exception("FAST2SMS_API_KEY not set in environment variables.")
+
+    # Clean phone number - remove country code if present
+    phone_clean = phone.strip().replace("+91", "").replace("-", "").replace(" ", "")
+    if len(phone_clean) != 10:
+        raise Exception(f"Invalid phone number format: {phone}. Must be 10 digits.")
+
+    message = (
+        f"Hi {player_name}! Your GameArenaX registration is CONFIRMED!\n"
+        f"Tournament: {tournament_name}\n"
+        f"Slot No: #{slot_number}\n"
+        f"Entry Fee: Rs.20/slot\n"
+        f"Prizes: Rs.120(1st) Rs.60(2nd) Rs.30(3rd) Rs.10/kill\n"
+        f"Join room 15 min BEFORE match time. No late entries.\n"
+        f"Rules: No hacks/cheats. Admin decision is final.\n"
+        f"Good luck! -GameArenaX Team"
+    )
+
+    response = http_requests.post(
+        "https://www.fast2sms.com/dev/bulkV2",
+        headers={"authorization": api_key, "Content-Type": "application/json"},
+        json={
+            "route": "q",
+            "numbers": phone_clean,
+            "message": message,
+            "language": "english",
+            "flash": 0
+        },
+        timeout=10
+    )
+
+    result = response.json()
+    logger.info(f"Fast2SMS response: {result}")
+    if not result.get("return"):
+        raise Exception(f"Fast2SMS error: {result.get('message', 'Unknown error')}")
+
+@api_router.post("/registrations/{registration_id}/send-sms")
+async def send_registration_sms(registration_id: str, background_tasks: BackgroundTasks, payload: dict = Depends(verify_jwt_token)):
+    reg = next((r for r in db["registrations"] if r["id"] == registration_id), None)
+    if not reg:
+        raise HTTPException(status_code=404, detail="Registration not found")
+    phone = reg.get("phone", "")
+    if not phone:
+        raise HTTPException(status_code=400, detail="No phone number found for this registration.")
+    t = next((t for t in db["tournaments"] if t["id"] == reg.get("tournament_id")), None)
+    tournament_name = t["name"] if t else "GameArenaX Tournament"
+
+    # Run synchronously so we can catch errors and report back
+    try:
+        send_sms_fast2sms(phone, reg["player_name"], tournament_name, reg.get("slot_number", "?"))
+    except Exception as e:
+        logger.error(f"SMS failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+    return {"message": f"SMS sent successfully to {phone}"}
 
 @api_router.get("/")
 async def root(): return {"message": "Free Fire API"}
