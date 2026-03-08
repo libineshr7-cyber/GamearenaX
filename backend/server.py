@@ -62,15 +62,25 @@ def _jb_load() -> dict:
             headers={"X-Master-Key": JSONBIN_API_KEY, "X-Bin-Meta": "false"},
             timeout=10
         )
+        if r.status_code == 401:
+            raise HTTPException(status_code=401, detail="JSONBin API Key is unauthorized. Check Render Env Vars.")
+        if r.status_code == 404:
+            raise HTTPException(status_code=404, detail="JSONBin Bin ID not found. Check Render Env Vars.")
         r.raise_for_status()
         data = r.json()
+        if "record" in data: data = data["record"]
+        
         # Ensure all keys exist
+        if not isinstance(data, dict): data = {}
         data.setdefault("tournaments", [])
         data.setdefault("registrations", [])
         data.setdefault("contacts", [])
         return data
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"JSONBin read failed: {e}")
+        # Return empty data instead of crashing on read
         return {"tournaments": [], "registrations": [], "contacts": []}
 
 def _jb_save(data: dict):
@@ -82,10 +92,14 @@ def _jb_save(data: dict):
             json=data,
             timeout=15
         )
+        if r.status_code == 401:
+            raise HTTPException(status_code=401, detail="JSONBin API Key is unauthorized. Check Render Env Vars.")
         r.raise_for_status()
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"JSONBin write failed: {e}")
-        raise
+        raise HTTPException(status_code=500, detail=f"Database write failed: {str(e)}")
 
 # ── Local JSON helpers ────────────────────────────────────────────────────────
 
