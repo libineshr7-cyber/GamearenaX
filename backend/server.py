@@ -33,8 +33,6 @@ logger = logging.getLogger(__name__)
 GOOGLE_SHEET_URL = os.environ.get('GOOGLE_SHEET_URL', '').strip()
 USE_GOOGLE_SHEETS = bool(GOOGLE_SHEET_URL)
 DATA_FILE  = ROOT_DIR / "data.json"
-DATA_RETENTION_DAYS = 60
-
 DATA_RETENTION_DAYS = 60   # registrations older than 60 days are auto-removed
 
 data_lock  = asyncio.Lock()
@@ -61,6 +59,33 @@ def _gs_load() -> dict:
         logger.error(f"Google Sheet read failed: {e}")
         # Return empty data instead of crashing on read
         return {"tournaments": [], "registrations": [], "contacts": []}
+
+def normalize_db(data: dict) -> dict:
+    """Fixes data coming from Google Sheets (empty strings to proper defaults)."""
+    for t in data.get("tournaments", []):
+        t.setdefault("id", str(uuid.uuid4()))
+        if t.get("max_slots") == "": t["max_slots"] = 50
+        try: t["max_slots"] = int(t["max_slots"])
+        except: t["max_slots"] = 50
+
+    for r in data.get("registrations", []):
+        if r.get("status") == "": r["status"] = "pending"
+        if r.get("kills") == "": r["kills"] = 0
+        if r.get("tournament_rank") == "": r["tournament_rank"] = 0
+        if r.get("total_prize") == "": r["total_prize"] = 0.0
+        if r.get("registered_at") == "": r["registered_at"] = datetime.now(timezone.utc).isoformat()
+        
+        # Ensure numbers are actual numbers
+        try: r["slot_number"] = int(r["slot_number"]) if r.get("slot_number") != "" else None
+        except: r["slot_number"] = None
+        try: r["kills"] = int(r["kills"])
+        except: r["kills"] = 0
+        try: r["tournament_rank"] = int(r["tournament_rank"])
+        except: r["tournament_rank"] = 0
+        try: r["total_prize"] = float(r["total_prize"])
+        except: r["total_prize"] = 0.0
+        
+    return data
 
 def _gs_save(data: dict):
     """Write data to Google Sheets via Web App."""
@@ -103,9 +128,12 @@ def _local_save(data: dict):
 
 def load_db() -> dict:
     """Load database from Cloud (Google Sheets) or fallback to local JSON."""
+    data = {}
     if USE_GOOGLE_SHEETS:
-        return _gs_load()
-    return _local_load()
+        data = _gs_load()
+    else:
+        data = _local_load()
+    return normalize_db(data)
 
 def save_db(data: dict):
     """Save database to Cloud (Google Sheets) and purge old data."""
@@ -538,7 +566,7 @@ async def get_registrations(tournament_id: Optional[str] = None, payload: dict =
     data = load_db()
     regs = data["registrations"]
     if tournament_id:
-        regs = [r for r in regs if r.get("tournament_id") == tournament_id]
+        regs = [r for r in regs if str(r.get("tournament_id")) == str(tournament_id)]
     for reg in regs:
         if isinstance(reg.get('registered_at'), str):
             try:
@@ -581,7 +609,7 @@ async def get_leaderboard(tournament_id: Optional[str] = None):
     )
     if not t:
         return []
-    regs = [r for r in data["registrations"] if r.get("tournament_id") == t["id"] and r.get("status") == "approved"]
+    regs = [r for r in data["registrations"] if str(r.get("tournament_id")) == str(t["id"]) and r.get("status") == "approved"]
 
     def get_sort_key(x):
         r = x.get('tournament_rank', 0)
@@ -675,7 +703,7 @@ async def update_status(registration_id: str, input: UpdateStatus, background_ta
         save_db(data)
 
     if input.status == "approved" and old_status != "approved":
-        t = next((t for t in data["tournaments"] if t["id"] == reg.get("tournament_id")), None)
+        t = next((t for t in data["tournaments"] if str(t["id"]) == str(reg.get("tournament_id"))), None)
         background_tasks.add_task(send_approval_email, reg.get("email"), reg.get("player_name"), t["name"] if t else "Tournament")
     return {"message": "Success"}
 
@@ -689,7 +717,7 @@ async def get_stats(tournament_id: Optional[str] = None, payload: dict = Depends
     )
     if not t:
         return TournamentStats(total_registrations=0, max_registrations=50, total_prize_pool=0, pending_count=0, approved_count=0)
-    regs = [r for r in data["registrations"] if r.get("tournament_id") == t["id"]]
+    regs = [r for r in data["registrations"] if str(r.get("tournament_id")) == str(t["id"])]
     return TournamentStats(
         total_registrations=len(regs),
         max_registrations=t.get("max_slots", 50),
@@ -714,9 +742,9 @@ app.mount("/", StaticFiles(directory=str(ROOT_DIR.parent), html=True), name="fro
 if __name__ == "__main__":
     import uvicorn
     print("Starting GameArenaX backend...")
-    if USE_JSONBIN:
-        print("✅ Storage: JSONBin.io (Cloud - Data is PERSISTENT!)")
+    if USE_GOOGLE_SHEETS:
+        print("✅ Storage: Google Sheets (Cloud - Data is PERSISTENT!)")
     else:
         print("⚠️  Storage: Local JSON (data.json) — data WILL BE LOST on Render restart!")
-        print("   → To fix: Add JSONBIN_API_KEY and JSONBIN_BIN_ID to Render Environment Variables")
-    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)
+        print("   → To fix: Add GOOGLE_SHEET_URL to Render Environment Variables")
+    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=False)
